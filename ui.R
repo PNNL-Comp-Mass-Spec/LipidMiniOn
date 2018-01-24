@@ -32,8 +32,8 @@
 #                                                 ".csv")),
 #                            # tags$hr(),
 #                            
-#                            # Enriched File - character vector #
-#                            fileInput("enriched", "Upload Enriched File (.csv)",
+#                            # Query File - character vector #
+#                            fileInput("query", "Upload Query File (.csv)",
 #                                      multiple = TRUE,
 #                                      accept = c("text/csv",
 #                                                 "text/comma-separated-values,text/plain",
@@ -46,13 +46,13 @@
 #                   ### Statistical Tests Tab ###
 #                   tabPanel("Statistical Test(s)",
 #                            dataTableOutput("head_universe"),
-#                            dataTableOutput("head_enriched")
+#                            dataTableOutput("head_query")
 #                            ),
 #                   
 #                   ### Visualize Tab ###
 #                   tabPanel("Visualize",
 #                            dataTableOutput("head_universe"),
-#                            dataTableOutput("head_enriched")
+#                            dataTableOutput("head_query")
 #                            
 #                            )
 #                   )
@@ -91,6 +91,13 @@ shinyUI(fluidPage(
                            
                            sidebarPanel(
                              
+                             ## Load Query file ##
+                             fileInput("query", "Upload 'Query' Lipid Names (.csv)",
+                                       multiple = TRUE,
+                                       accept = c("text/csv",
+                                                  "text/comma-separated-values,text/plain",
+                                                  ".csv")), 
+                             
                              ## Load Universe file ##
                              fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
                                        multiple = TRUE,
@@ -98,14 +105,7 @@ shinyUI(fluidPage(
                                                   "text/comma-separated-values,text/plain",
                                                   ".csv")),
                              
-                             # Load Enriched file
-                             fileInput("enriched", "Upload 'Enriched' Lipid Names (.csv)",
-                                       multiple = TRUE,
-                                       accept = c("text/csv",
-                                                  "text/comma-separated-values,text/plain",
-                                                  ".csv")), 
-                             
-                             # Process data (clean it) #
+                             ## Process data button (clean it) ##
                              actionButton('process_click', 'Process Data')
                            ), 
                            
@@ -115,8 +115,8 @@ shinyUI(fluidPage(
                               textOutput("num_universe"), 
                               dataTableOutput("head_universe"),
                                
-                              textOutput("num_enriched"), 
-                              dataTableOutput("head_enriched"), 
+                              textOutput("num_query"), 
+                              dataTableOutput("head_query"), 
                              
                               textOutput("process_success")
                            )

@@ -18,8 +18,8 @@
 #     read.csv(filename)
 #   })
 #   
-#   enrichedData <- eventReactive(input$click, {
-#     filename <- input$enriched$datapath
+#   queryData <- eventReactive(input$click, {
+#     filename <- input$query$datapath
 #     read.csv(filename)
 #   })
 #   
@@ -31,8 +31,8 @@
 #   
 # 
 #   # Display head of e_meta file
-#   output$head_enriched <- renderDataTable({
-#     head(enrichedData())
+#   output$head_query <- renderDataTable({
+#     head(queryData())
 #   })
 #   
 # })
@@ -45,39 +45,48 @@ library(shiny)
 shinyServer(function(session, input, output){
   
   ######## Upload Tab ##############
+  
   #### Sidebar Panel ####
-  # Get data from files
+  
+  # Get data from Query File #
+  queryData <- reactive({
+    req(input$query$datapath)
+    filename <- input$query$datapath
+    read.csv(filename, stringsAsFactors = FALSE)
+  })
+  
+  # Get data from Universe File #
   universeData <-reactive({
     req(input$universe$datapath)
     filename <- input$universe$datapath
     read.csv(filename, stringsAsFactors = FALSE)
   })
-  enrichedData <- reactive({
-    req(input$enriched$datapath)
-    filename <- input$enriched$datapath
-    read.csv(filename, stringsAsFactors = FALSE)
-  })
   
-
   
   #### Main Panel ####
-  # Display results
-  output$head_universe <- renderDataTable({
-    head(universeData())
+  
+  # Preview the Query File #
+  output$num_query <- renderText({
+    c('Number of lipids in Query file: ', nrow(queryData()))
+  })
+  output$head_query <- renderDataTable({
+    head(queryData())
     }, 
     options = list(dom = 't', searching = FALSE)
   )
-  output$head_enriched <- renderDataTable({
-    head(enrichedData())
-    }, 
-    options = list(dom = 't', searching = FALSE)
-  )
+  
+  # Preview the Universe File #
   output$num_universe <- renderText({
     c('Number of lipids in Universe file: ', nrow(universeData()))
   })
-  output$num_enriched <- renderText({
-    c('Number of lipids in Enriched file: ', nrow(enrichedData()))
-  })
+  output$head_universe <- renderDataTable({
+    head(universeData())
+  }, 
+  options = list(dom = 't', searching = FALSE)
+  )
+  
+  
+  
   
   
   #### Action Button Reactions ####
@@ -86,18 +95,18 @@ shinyServer(function(session, input, output){
     validate(
       #need(input$edata_id_col != 'Select one', 
        #    'Please select a unique identifier column')
-      need(nrow(universeData()) > 0 & nrow(enrichedData()) > 0, 
+      need(nrow(universeData()) > 0 & nrow(queryData()) > 0, 
             'Please upload files with > 1 lipid')
     )
     
     universeDataClean <- clean.lipid.list(universeData)
-    enrichedDataClean <- clean.lipid.list(enrichedData)
+    queryDataClean <- clean.lipid.list(queryData)
     
     # Display success message if everything is loaded correctly
     output$process_success <- renderUI({
-      req(universeDataClean() & enrichedDataClean())
+      req(universeDataClean() & queryDataClean())
       test1 <- head(universeDataClean())
-      test2 <- head(enrichedDataCl)
+      test2 <- head(queryDataCl)
       HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded. 
            You may proceed to the subsequent tabs for analysis.</h4>')
     })
