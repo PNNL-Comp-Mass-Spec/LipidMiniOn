@@ -111,13 +111,22 @@ shinyUI(fluidPage(
                            
                            ## Main Panel ##
                            mainPanel(
-      
-                              textOutput("num_universe"), 
-                              dataTableOutput("head_universe"),
-                               
-                              textOutput("num_query"), 
-                              dataTableOutput("head_query"), 
-                             
+
+
+                             fluidRow(
+                               column(
+                                 6, h2("Query Lipids"), hr(),
+                                 textOutput("num_query"), 
+                                 DT::dataTableOutput("head_query")
+                               ),
+
+                               column(
+                                 6, h2("Universe Lipids"), hr(),
+                                 textOutput("num_universe"), 
+                                 DT::dataTableOutput("head_universe")
+                               )
+                             ), 
+                              
                               textOutput("process_success")
                            )
                           )),

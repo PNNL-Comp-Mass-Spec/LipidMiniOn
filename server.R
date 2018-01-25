@@ -41,6 +41,7 @@
 #options(shiny.maxRequestSize=30*1024^2, ch.dir = TRUE) 
 library(shiny)
 #library(rodin)
+library(DT)
 
 shinyServer(function(session, input, output){
   
@@ -64,13 +65,16 @@ shinyServer(function(session, input, output){
   
   
   #### Main Panel ####
+
+  options(DT.options = list(pageLength = 5))
   
   # Preview the Query File #
   output$num_query <- renderText({
     c('Number of lipids in Query file: ', nrow(queryData()))
   })
-  output$head_query <- renderDataTable({
-    head(queryData())
+
+  output$head_query <- DT::renderDataTable({
+    queryData()
     }, 
     options = list(dom = 't', searching = FALSE)
   )
@@ -79,8 +83,8 @@ shinyServer(function(session, input, output){
   output$num_universe <- renderText({
     c('Number of lipids in Universe file: ', nrow(universeData()))
   })
-  output$head_universe <- renderDataTable({
-    head(universeData())
+  output$head_universe <- DT::renderDataTable({
+    universeData()
   }, 
   options = list(dom = 't', searching = FALSE)
   )
