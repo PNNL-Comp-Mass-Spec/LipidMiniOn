@@ -40,7 +40,7 @@
 
 #options(shiny.maxRequestSize=30*1024^2, ch.dir = TRUE) 
 library(shiny)
-#library(rodin)
+library(rodin)
 library(DT)
 
 shinyServer(function(session, input, output){
@@ -69,24 +69,27 @@ shinyServer(function(session, input, output){
   options(DT.options = list(pageLength = 5))
   
   # Preview the Query File #
-  output$num_query <- renderText({
-    c('Number of lipids in Query file: ', nrow(queryData()))
+  output$num_query <- renderUI({
+    req(queryData())
+    HTML(paste('<h4>Number of lipids in Query file: ', nrow(queryData()), '</h4>', sep=""))
   })
 
   output$head_query <- DT::renderDataTable({
     queryData()
-    }, 
-    options = list(dom = 't', searching = FALSE)
+    }
+    #options = list(dom = 't', searching = FALSE)
   )
   
   # Preview the Universe File #
-  output$num_universe <- renderText({
-    c('Number of lipids in Universe file: ', nrow(universeData()))
+  output$num_universe <- renderUI({
+    req(universeData())
+    HTML(paste('<h4>Number of lipids in Universe file: ', nrow(universeData()), '</h4>', sep=""))
   })
+  
   output$head_universe <- DT::renderDataTable({
     universeData()
-  }, 
-  options = list(dom = 't', searching = FALSE)
+  }
+  #options = list(dom = 't', searching = FALSE)
   )
   
   
@@ -95,59 +98,70 @@ shinyServer(function(session, input, output){
   
   #### Action Button Reactions ####
   # Clean the 2 datasets #
-  clean <- eventReactive(input$process_click, {
+  queryDataClean <- eventReactive(input$process_click, {
     validate(
-      #need(input$edata_id_col != 'Select one', 
-       #    'Please select a unique identifier column')
-      need(nrow(universeData()) > 0 & nrow(queryData()) > 0, 
-            'Please upload files with > 1 lipid')
+      need(nrow(queryData()) > 0, 
+           'Please upload Query file with > 1 lipid')
     )
     
-    universeDataClean <- clean.lipid.list(universeData)
-    queryDataClean <- clean.lipid.list(queryData)
+    clean.lipid.list(X=queryData())
+  })
+  
+  universeDataClean <- eventReactive(input$process_click, {
+    validate(
+      need(nrow(universeData()) > 0, 
+            'Please upload Universe file with > 1 lipid')
+    )
     
-    # Display success message if everything is loaded correctly
-    output$process_success <- renderUI({
-      req(universeDataClean() & queryDataClean())
-      test1 <- head(universeDataClean())
-      test2 <- head(queryDataCl)
-      HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded. 
-           You may proceed to the subsequent tabs for analysis.</h4>')
-    })
-  }
-  )
+    clean.lipid.list(X=universeData())
+  })
+  
+  # Display success message if everything is loaded correctly
+  output$process_success <- renderUI({
+    req(universeDataClean()) 
+    req(queryDataClean())
+    test1 <- universeDataClean()
+    test2 <- queryDataClean()
+    
+    if(all(test2 %in% test1)){
+      HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded and cleaned. [Placeholder for disclaimer on cleaning function; need text from Geremy] 
+         You may proceed to the subsequent tabs for analysis.</h4>')
+    }else{
+      #HTML('<h4 style= "color:#1A5276"></h4>')
+      HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query file but not in the Universe file: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
+    }
+    
+  })
   
   
+
   
-  
-  
-  
-  ####### Preprocess Tab #######
+  ####### Enrichment Analysis Tab #######
   output$tempplaceholder = renderText({"Summary of tests can go here"})
   
   
   ####### Visualize Tab #######
   #### Sidebar Panel ####
   
-  # Which groups should be displayed (if multiple)? #
-  output$whichGroups1 <- renderUI({
-    selectInput('whichGroups1', 'Group 1', 
-                choices = sample_names(), 
-                multiple = TRUE)
-  })
-  output$whichGroups2 <- renderUI({
-    selectInput('whichGroups2', 'Group 2', 
-                choices = sample_names(), 
-                multiple = TRUE)
-  })
-  
-  #### Main Panel ####
-  # Display Kendrick or Van Krevelen plots
-  output$kendrick <- renderPlot({
-    
-  })
-  output$vankrev <- renderPlot({
-    
-  })
+  # # Which groups should be displayed (if multiple)? #
+  # output$whichGroups1 <- renderUI({
+  #   selectInput('whichGroups1', 'Group 1', 
+  #               choices = sample_names(), 
+  #               multiple = TRUE)
+  # })
+  # output$whichGroups2 <- renderUI({
+  #   selectInput('whichGroups2', 'Group 2', 
+  #               choices = sample_names(), 
+  #               multiple = TRUE)
+  # })
+  # 
+  # #### Main Panel ####
+  # # Display Kendrick or Van Krevelen plots
+  # output$kendrick <- renderPlot({
+  #   
+  # })
+  # output$vankrev <- renderPlot({
+  #   
+  # })
   
 })

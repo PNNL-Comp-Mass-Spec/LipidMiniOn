@@ -111,23 +111,23 @@ shinyUI(fluidPage(
                            
                            ## Main Panel ##
                            mainPanel(
-
+                             uiOutput("process_success"),
 
                              fluidRow(
                                column(
-                                 6, h2("Query Lipids"), hr(),
-                                 textOutput("num_query"), 
+                                 6, h2("Query"), hr(),
+                                 htmlOutput("num_query"), 
                                  DT::dataTableOutput("head_query")
                                ),
 
                                column(
-                                 6, h2("Universe Lipids"), hr(),
-                                 textOutput("num_universe"), 
+                                 6, h2("Universe"), hr(),
+                                 htmlOutput("num_universe"), 
                                  DT::dataTableOutput("head_universe")
                                )
-                             ), 
+                             )
                               
-                              textOutput("process_success")
+                              
                            )
                           )),
 
@@ -136,23 +136,54 @@ shinyUI(fluidPage(
                 tabPanel("Enrichment Analysis",
                          sidebarLayout(
                            sidebarPanel(
-                             checkboxGroupInput('tests', 'I want to use the following:',
-                                                c("Fisher's Exact Test",
-                                                  "Binomial Test",
-                                                  "EASE score"),
-                                                selected = ''),
                              
-
-                             selectInput("chooseplots", "To test",
-                                         choices = c("Intact" = 1,
-                                                     "Chain" = 2,
-                                                     "All Chains" = 3)
-                             ),
+                             ### Enrichment Test - dropdown ###
+                             selectInput('dd_tests', 'Enrichment test to use:',
+                                                choices = c("Please select a test", 
+                                                            "Fisher's exact test",
+                                                            "EASE score (DAVID)",
+                                                            "Binomial test",
+                                                            "Hypergeometric test")
+                                         ),
                              
+                             hr(),
+                             
+                             ### General Parameters to Test - checkbox group ###
+                             checkboxGroupInput("cb_params", "General parameters to test",
+                                         choices = c("Category" = "cat",
+                                                     "Main class" = "main",
+                                                     "Sub-class" = "sub",
+                                                     "Individual chains (e.g. Fatty acids)" = "chains",
+                                                     "Individual chain length and number of double bonds" = "length"),
+                                         selected = c("cat", "main", "sub", "chains", "length")
+                                         ),
+                             
+                             ### Main Class Specific Parameters - checkbox group ###
+                             checkboxGroupInput("cb_params_mainclass", "Main class specific parameters",
+                                                choices = c("Total number of chain carbon within each class" = 1,
+                                                            "Total number of chain double bond within each class" = 2)
+                                                ),
+                             
+                             hr(),
+                             
+                             ### P-value Threshold - user entry ###
+                             
+                             
+                             ### Test P-values - dropdown ###
+                             
+                             
+                             ### Output Filter - checkbox ###
+                             checkboxInput("cb_nofilter", "Don't filter the output data", 
+                                           value = FALSE
+                                           ),
+                             
+                             ### Process Data - button ###
                              actionButton("preprocess_click", "Process Data")
 
 
                            ),
+                           
+                           
                            mainPanel(# Add plots and visualization stuff here
                              textOutput("tempplaceholder"),
                              width = 7)
