@@ -7,41 +7,13 @@
 #    http://shiny.rstudio.com/
 #
 
-# library(shiny)
-# 
-# # Define server logic required to draw a histogram
-# shinyServer(function(input, output) {
-#   
-#   # Observe click, update Visualize
-#   universeData <- eventReactive(input$click, {
-#     filename <- input$universe$datapath
-#     read.csv(filename)
-#   })
-#   
-#   queryData <- eventReactive(input$click, {
-#     filename <- input$query$datapath
-#     read.csv(filename)
-#   })
-#   
-#   
-#   # Display head of file
-#   output$head_universe <- renderDataTable({
-#     head(universeData())
-#   })
-#   
-# 
-#   # Display head of e_meta file
-#   output$head_query <- renderDataTable({
-#     head(queryData())
-#   })
-#   
-# })
-
 
 #options(shiny.maxRequestSize=30*1024^2, ch.dir = TRUE) 
 library(shiny)
 library(rodin)
 library(DT)
+library(ggplot2)
+library(gridExtra)
 
 shinyServer(function(session, input, output){
   
@@ -57,48 +29,106 @@ shinyServer(function(session, input, output){
   })
   
   # Get data from Universe File #
-  universeData <-reactive({
+  universeData <- reactive({
     req(input$universe$datapath)
     filename <- input$universe$datapath
     read.csv(filename, stringsAsFactors = FALSE)
   })
   
+  output$CleaningDescription = renderText({"Description of the data cleaning that happens when the user clicks the 'Check Data' button"})
   
   #### Main Panel ####
 
   options(DT.options = list(pageLength = 5))
   
-  # Preview the Query File #
-  output$num_query <- renderUI({
+  
+  ## Display Table and populate with number of lipids in Original (un-cleaned) datasets ##
+  # Depends on: file upload (to get the uploadResults numbers) and button click (to get the cleanResults numbers)
+
+  # Set default results: NA before data is uploaded
+  uploadResultsQuery <- NA
+  uploadResultsUniverse <- NA
+
+  # Set default results: NA before cleaning occurs
+  cleanResultsQuery <- NA
+  cleanResultsUniverse <- NA
+
+  # query upload length
+  uploadResultsquery <- reactive({
+    # Make sure requirements are met
     req(queryData())
-    HTML(paste('<h4>Number of lipids in Query file: ', nrow(queryData()), '</h4>', sep=""))
+
+    nrow(queryData())
   })
 
-  output$head_query <- DT::renderDataTable({
-    queryData()
-    }
-    #options = list(dom = 't', searching = FALSE)
-  )
-  
-  # Preview the Universe File #
-  output$num_universe <- renderUI({
+  # Universe upload length
+  uploadResultsUniverse <- reactive({
+    # Make sure requirements are met
     req(universeData())
-    HTML(paste('<h4>Number of lipids in Universe file: ', nrow(universeData()), '</h4>', sep=""))
+
+    nrow(universeData())
   })
-  
-  output$head_universe <- DT::renderDataTable({
-    universeData()
-  }
-  #options = list(dom = 't', searching = FALSE)
-  )
-  
-  
-  
-  
+
+  # query cleaned length
+  cleanResultsQuery <- reactive({
+    # Make sure requirements are met
+    req(queryDataClean())
+
+    length(queryDataClean())
+  })
+
+  # Universe cleaned length
+  cleanResultsUniverse <- reactive({
+    # Make sure requirements are met
+    req(universeDataClean())
+
+    length(universeDataClean())
+  })
+
+  ## Display table with number lipids in cleaned datasets ## 1. HAVING TROUBLE WITH THE REACTIVITY HERE - I WANT TO POPULATE THE TABLE WITH THE NUMBERS FROM THE FILE UPLOADS AS SOON AS THE FILE IS UPLOADED, AND THEN POPULATE THE REST OF THE TABLE WITH THE NUMBERS FROM THE CLEANED DATA AFTER THE BUTTON HAS BEEN CLICKED
+  output$summary_data <- renderTable({
+
+    req(universeDataClean())
+    req(queryDataClean())
+    req(cleanResultsUniverse())
+    req(cleanResultsQuery())
+
+    # If query data uploaded
+    if(!is.null(queryData())){
+      uploadResultsQ <- nrow(queryData())
+    }
+
+    # If universe data uploaded
+    if(!is.null(universeData())){
+      uploadResultsU <- nrow(universeData())
+    }
+
+    # If query data cleaned #
+    if(!is.null(queryDataClean())){
+      cleanResultsQ <- length(queryDataClean())
+    }
+
+    # If universe data cleaned #
+    if(!is.null(universeDataClean())){
+      cleanResultsU <- length(universeDataClean())
+    }
+
+    #uploadResults <- unlist(uploadResults)
+    #cleanResults <- unlist(cleanResultsQuery)
+
+    # Create a dataframe out of Before and After results from summaryFilterDataFrame
+    data.frame('Uploaded' = c(uploadResultsQ, uploadResultsU),
+               'Cleaned' = c(cleanResultsQ, cleanResultsU),
+               row.names = c('Query',
+                             'Universe'))
+
+  }, rownames = TRUE)
+
   
   #### Action Button Reactions ####
+  
   # Clean the 2 datasets #
-  queryDataClean <- eventReactive(input$process_click, {
+  queryDataClean <- eventReactive(input$check_click, {
     validate(
       need(nrow(queryData()) > 0, 
            'Please upload Query file with > 1 lipid')
@@ -107,7 +137,7 @@ shinyServer(function(session, input, output){
     clean.lipid.list(X=queryData())
   })
   
-  universeDataClean <- eventReactive(input$process_click, {
+  universeDataClean <- eventReactive(input$check_click, {
     validate(
       need(nrow(universeData()) > 0, 
             'Please upload Universe file with > 1 lipid')
@@ -116,20 +146,74 @@ shinyServer(function(session, input, output){
     clean.lipid.list(X=universeData())
   })
   
-  # Display success message if everything is loaded correctly
+  
+  # Run lipid.miner on the 2 datasets #
+  queryMined <- eventReactive(input$check_click, {
+    validate(
+      need(length(queryDataClean()) > 0, 
+           'There are zero lipids in the cleaned query data')
+    )
+    
+    lipid.miner(queryDataClean(), Name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+  })
+  
+  universeMined <- eventReactive(input$check_click, {
+    validate(
+      need(length(universeDataClean()) > 0, 
+           'There are zero lipids in the cleaned universe data')
+    )
+    
+    lipid.miner(universeDataClean(), Name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+  })
+  
+  
+  ## Display success message if everything is loaded correctly ##
   output$process_success <- renderUI({
     req(universeDataClean()) 
     req(queryDataClean())
+    req(universeMined())
+    req(queryMined())
+    
     test1 <- universeDataClean()
     test2 <- queryDataClean()
+    test3 <- universeMined()
+    test4 <- queryMined()
     
     if(all(test2 %in% test1)){
-      HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded and cleaned. [Placeholder for disclaimer on cleaning function; need text from Geremy] 
+      HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded and cleaned.
          You may proceed to the subsequent tabs for analysis.</h4>')
     }else{
       #HTML('<h4 style= "color:#1A5276"></h4>')
       HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query file but not in the Universe file: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
     }
+    
+    
+    
+  
+    ## Download option for cleaned data ## 2. THESE BUTTONS SHOULD ONLY BE AVAILABLE ONCE THE DATA HAS BEEN SUCCESSFULLY CLEANED
+    output$downloadQueryClean <- downloadHandler(
+      filename = function() {
+        paste("Query_Data_Cleaned", ".txt", sep = "")
+      },
+      content = function(file) {
+        query = queryDataClean()
+        write.table(query, file, row.names = FALSE)
+      }
+    )
+    
+    output$downloadUniverseClean <- downloadHandler(
+      filename = function() {
+        paste("Universe_Data_Cleaned", ".txt", sep = "")
+      },
+      content = function(file) {
+        universe = universeDataClean()
+        write.table(universe, file, row.names = FALSE)
+      }
+    )
+    
+    
+    
+    
     
   })
   
@@ -138,30 +222,104 @@ shinyServer(function(session, input, output){
   
   ####### Enrichment Analysis Tab #######
   output$tempplaceholder = renderText({"Summary of tests can go here"})
+  output$pvalue_text = renderText({"P-value filter"})
+  
+  # initialize the user input values? 
+  
+  # Get user inputs #
+  test_type <- reactive({
+    req(input$dd_enrich_test)
+    input$dd_enrich_test
+  })
+  
+  general_select <- reactive({
+    req(input$cb_test_params)
+    input$cb_test_params
+  })
+  
+  subset_by <- reactive({
+    req(input$dd_subset_id)
+    input$dd_subset_id
+  })
+  
+  subset_select <- reactive({
+    req(input$cb_params_subclass)
+    cb_params_subclass
+  })
+  
+  enrich <- reactive({
+    req(input$cb_pval_filter)
+    cb_pval_filter
+  })
+  
+  p_type <- reactive({
+    req(input$dd_pval_type)
+    dd_pval_type
+  })
+  
+  
+  p_value <- reactive({
+    req(input$ue_pval_thresh)
+    ue_pval_thresh
+  })
+  
+  # End of get user inputs #
+  
+  
+  #### Action Button Reactions ####
+  
+  # Run the specified test(s) when Process Data button is clicked #
+  global_results <- eventReactive(input$process_click, {
+    validate(
+      # need cleaned query data #
+      need(length(querMined()) > 0, 
+           'Please upload and clean Query data.'),
+      # need cleaned universe data #
+      need(length(universeMined()) > 0, 
+           'Please upload and clean Universe data.'),
+      # need (at the min) test type #
+      need(!is.null(test_type),
+           'Please select an enrichment test to use.')
+    )
+    
+    run_the_test(Query.miner = queryMined(), Universe.miner = universeMined, test.type = test_type, general.select = general_select, subset.by = subset_by, subset.select = subset_select, enrich = enrich, pval = p_value, adjpval = p_type)
+  })
+  
+  output$global_results_table <- renderTable({
+    req(global_results())
+    global_results()
+  })
+  
+  # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
+  output$param_check <- renderUI({
+    req(test_type()) 
+    req(general_select())
+    req(subset_by())
+    req(subset_select())
+    req(enrich())
+    req(p_value())
+    req(p_type())
+    
+    HTML(paste('<h4 style= "color:#cc3d16">', c('test_type: ', test_type(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('general_select: ', general_select(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('subset_by: ', subset_by(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('subset_select: ', subset_select(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
+                   
+  })
+  
+  
+  
   
   
   ####### Visualize Tab #######
-  #### Sidebar Panel ####
+ 
+  output$pie <- renderPlot({
+    req(queryMined())
+    chain.pieCat(Query.miner$chain)
+  })
   
-  # # Which groups should be displayed (if multiple)? #
-  # output$whichGroups1 <- renderUI({
-  #   selectInput('whichGroups1', 'Group 1', 
-  #               choices = sample_names(), 
-  #               multiple = TRUE)
-  # })
-  # output$whichGroups2 <- renderUI({
-  #   selectInput('whichGroups2', 'Group 2', 
-  #               choices = sample_names(), 
-  #               multiple = TRUE)
-  # })
-  # 
-  # #### Main Panel ####
-  # # Display Kendrick or Van Krevelen plots
-  # output$kendrick <- renderPlot({
-  #   
-  # })
-  # output$vankrev <- renderPlot({
-  #   
-  # })
   
 })

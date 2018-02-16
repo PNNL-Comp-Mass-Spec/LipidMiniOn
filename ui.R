@@ -3,70 +3,6 @@
 # run the application by clicking 'Run App' above.
 #
 # Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
-# library(shiny)
-# 
-# # Define UI for application that draws a histogram
-# shinyUI(fluidPage(
-# 
-#   # App title ----
-#   titlePanel("Lipid Mini-On: MINIng and ONtology"),
-# 
-#     # Main panel for displaying outputs ----
-#     mainPanel(
-# 
-#       # Output: Tabset w/ Upload and Visualize (graph) tabs
-#       tabsetPanel(type = "tabs",
-#                   
-#                   ### Upload Tab ###
-#                   tabPanel("Data Upload",
-#                            
-#                            # Universe File - character vector #
-#                            fileInput("universe", "Upload Universe File (.csv)",
-#                                      multiple = TRUE,
-#                                      accept = c("text/csv",
-#                                                 "text/comma-separated-values,text/plain",
-#                                                 ".csv")),
-#                            # tags$hr(),
-#                            
-#                            # Query File - character vector #
-#                            fileInput("query", "Upload Query File (.csv)",
-#                                      multiple = TRUE,
-#                                      accept = c("text/csv",
-#                                                 "text/comma-separated-values,text/plain",
-#                                                 ".csv")),
-#                            
-#                            # Action Button - process the files #
-#                            actionButton("click", "Process Data")
-#                            ),
-#                   
-#                   ### Statistical Tests Tab ###
-#                   tabPanel("Statistical Test(s)",
-#                            dataTableOutput("head_universe"),
-#                            dataTableOutput("head_query")
-#                            ),
-#                   
-#                   ### Visualize Tab ###
-#                   tabPanel("Visualize",
-#                            dataTableOutput("head_universe"),
-#                            dataTableOutput("head_query")
-#                            
-#                            )
-#                   )
-#                   )
-#   )
-# )
-
-
-
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
 # 
 #    http://shiny.rstudio.com/
 #
@@ -105,40 +41,41 @@ shinyUI(fluidPage(
                                                   "text/comma-separated-values,text/plain",
                                                   ".csv")),
                              
+                             ## Description of what the "Check Data" button does #
+                             textOutput("CleaningDescription"),
+                             
                              ## Process data button (clean it) ##
-                             actionButton('process_click', 'Process Data')
+                             actionButton('check_click', 'Check Data')
                            ), 
                            
                            ## Main Panel ##
                            mainPanel(
                              uiOutput("process_success"),
 
-                             fluidRow(
-                               column(
-                                 6, h2("Query"), hr(),
-                                 htmlOutput("num_query"), 
-                                 DT::dataTableOutput("head_query")
-                               ),
-
-                               column(
-                                 6, h2("Universe"), hr(),
-                                 htmlOutput("num_universe"), 
-                                 DT::dataTableOutput("head_universe")
-                               )
-                             )
+                          
+                             
+                             # Summary table giving number lipids # 1. HAVING TROUBLE WITH THE REACTIVITY HERE (SEE THE SERVER FILE FOR A NOTE ON WHAT I'M TRYING TO DO), ALSO GETTING ERROR ABOUT SUBSETTING...
+                             wellPanel(
+                               tableOutput('summary_data')
+                             ),
+                             
+                             
+                             # Download the cleaned data (.txt files) # 2. THESE BUTTONS SHOULD ONLY APPEAR OR BECOME ACTIVE ONCE THE DATA HAS BEEN PROCESSED SUCCESSFULLY VIA THE "CHECK DATA" BUTTON
+                             downloadButton("downloadQueryClean", "Download Cleaned Query Data"),
+                             downloadButton("downloadUniverseClean", "Download Cleaned Universe Data")
                               
                               
                            )
                           )),
 
 
-                ################## Preprocess Panel ##################
+                ################## Enrichment Analysis Panel ##################
                 tabPanel("Enrichment Analysis",
                          sidebarLayout(
                            sidebarPanel(
                              
                              ### Enrichment Test - dropdown ###
-                             selectInput('dd_tests', 'Enrichment test to use:',
+                             selectInput('dd_enrich_test', 'Enrichment test to use:',
                                                 choices = c("Please select a test", 
                                                             "Fisher's exact test",
                                                             "EASE score (DAVID)",
@@ -146,10 +83,10 @@ shinyUI(fluidPage(
                                                             "Hypergeometric test")
                                          ),
                              
-                             hr(),
+                             
                              
                              ### General Parameters to Test - checkbox group ###
-                             checkboxGroupInput("cb_params", "General parameters to test",
+                             checkboxGroupInput("cb_test_params", "General parameters to test",
                                          choices = c("Category" = "cat",
                                                      "Main class" = "main",
                                                      "Sub-class" = "sub",
@@ -158,35 +95,68 @@ shinyUI(fluidPage(
                                          selected = c("cat", "main", "sub", "chains", "length")
                                          ),
                              
-                             ### Main Class Specific Parameters - checkbox group ###
-                             checkboxGroupInput("cb_params_mainclass", "Main class specific parameters",
+                             hr(),
+
+                             
+                             ### Subset-specific Test - drop down ###
+                             # (should be "none" by default but can be also "category", "mainclass", "subclass")
+                             selectInput('dd_subset_id', 'Subset to test:',
+                                         choices = c("None", 
+                                                     "Category",
+                                                     "Main Class",
+                                                     "Sub Class"
+                                                     )
+                             ),
+                             
+                             
+                             ### What to look at in the subset - checkbox group ###
+                             checkboxGroupInput("cb_params_subclass", "Main class specific parameters",
                                                 choices = c("Total number of chain carbon within each class" = 1,
-                                                            "Total number of chain double bond within each class" = 2)
-                                                ),
+                                                            "Total number of chain insaturations" = 2,
+                                                            "Specific chains" = 3)
+                             ),
+                             
                              
                              hr(),
                              
-                             ### P-value Threshold - user entry ###
-                             
-                             
-                             ### Test P-values - dropdown ###
-                             
-                             
-                             ### Output Filter - checkbox ###
-                             checkboxInput("cb_nofilter", "Don't filter the output data", 
-                                           value = FALSE
+                             ### P-value Filter - checkbox ###
+                             textOutput("pvalue_text"),
+                             checkboxInput("cb_pval_filter", "Implement a p-value filter by subsetting to lipids with a(n)", value = FALSE
                                            ),
                              
+                                 ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
+                                selectInput("dd_pval_type", "",
+                                         choices = c("Unadjusted p-value", 
+                                                     "Adjusted p-value"
+                                         )
+                                ),
+                             
+                                 ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
+                                textInput("ue_pval_thresh", "of", "0.05"),
+                             
+                             
+ 
+                             hr(),
+                             
                              ### Process Data - button ###
-                             actionButton("preprocess_click", "Process Data")
+                             actionButton("precheck_click", "Process Data")
 
 
                            ),
                            
                            
-                           mainPanel(# Add plots and visualization stuff here
+                           mainPanel(# Display globaloutput upon successful click of the "Process Data" button
+                             width = 7, 
+                             
                              textOutput("tempplaceholder"),
-                             width = 7)
+                             
+                             uiOutput("param_check"),
+                             
+                             tableOutput("global_results_table")
+                             
+                             )
+                           
+                           
 
 
                          )
@@ -195,41 +165,25 @@ shinyUI(fluidPage(
                 tabPanel("Visualize",
                          sidebarLayout(
                            sidebarPanel(
+                             
                              selectInput('chooseplots', 'I want to plot a',
                                          choices = c('Pie Chart' = 1,
                                                      'Other?' = 2)
-                             )#,
-                             # selectInput('choose_single', 'Using a(n)',
-                             #             choices = c('Single sample' = 1, 'Overlay of multiple samples' = 2)),
-                             # conditionalPanel(
-                             #   condition = 'input.choose_single == 2',
-                             #   {fluidRow(
-                             #     column(6,
-                             #            uiOutput('whichGroups1')
-                             #     ),
-                             #     column(6,
-                             #            uiOutput('whichGroups2')
-                             #     )
-                             #   )})
+                             )
                            ),
+                           
                            mainPanel(
-                             # conditionalPanel(
-                             #   condition = "input.chooseplots == 1",
-                             #   plotOutput('vankrev'),
-                             #   selectInput('placeholder_1', 'Use boundary:',
-                             #               choices = c('None' = 0, 'A' = 1, 'B' = 2, 'C' = 3))
-                             # ),
+                             width = 7, 
                              conditionalPanel(
-                               condition = "input.chooseplots == 2",
-                               plotOutput('kendrick')
-                             ),
-                             selectInput('placeholder_1', 'Color by:',
-                                         choices = c('Placeholder 1' = 1, 'Placeholder 2' = 2)),
+                               condition = "input.chooseplots == 1",
+                               plotOutput("pie")
+                             )
 
-                             width = 7)
+                            
                          )
                 )
     ))
+)
 )
 )
 
