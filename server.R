@@ -38,112 +38,135 @@ shinyServer(function(session, input, output){
   output$CleaningDescription = renderText({"Description of the data cleaning that happens when the user clicks the 'Check Data' button"})
   
   #### Main Panel ####
-
+  
   options(DT.options = list(pageLength = 5))
   
   
   ## Display Table and populate with number of lipids in Original (un-cleaned) datasets ##
   # Depends on: file upload (to get the uploadResults numbers) and button click (to get the cleanResults numbers)
-
-  # Set default results: NA before data is uploaded
-  uploadResultsQuery <- NA
-  uploadResultsUniverse <- NA
-
-  # Set default results: NA before cleaning occurs
-  cleanResultsQuery <- NA
-  cleanResultsUniverse <- NA
-
-  # query upload length
-  uploadResultsquery <- reactive({
-    # Make sure requirements are met
-    req(queryData())
-
-    nrow(queryData())
-  })
-
-  # Universe upload length
-  uploadResultsUniverse <- reactive({
-    # Make sure requirements are met
-    req(universeData())
-
-    nrow(universeData())
-  })
-
-  # query cleaned length
-  cleanResultsQuery <- reactive({
-    # Make sure requirements are met
-    req(queryDataClean())
-
-    length(queryDataClean())
-  })
-
-  # Universe cleaned length
-  cleanResultsUniverse <- reactive({
-    # Make sure requirements are met
-    req(universeDataClean())
-
-    length(universeDataClean())
-  })
-
+  
+  # # Set default results: NA before data is uploaded
+  # uploadResultsQuery <- NA
+  # uploadResultsUniverse <- NA
+  # 
+  # # Set default results: NA before cleaning occurs
+  # cleanResultsQuery <- NA
+  # cleanResultsUniverse <- NA
+  # 
+  #   # query upload length
+  #   uploadResultsquery <- reactive({
+  #     # Make sure requirements are met
+  #     req(queryData())
+  # 
+  #     nrow(queryData())
+  #   })
+  # 
+  #   # Universe upload length
+  #   uploadResultsUniverse <- reactive({
+  #     # Make sure requirements are met
+  #     req(universeData())
+  # 
+  #     nrow(universeData())
+  #   })
+  # 
+  #   # query cleaned length
+  #   cleanResultsQuery <- reactive({
+  #     # Make sure requirements are met
+  #     req(queryDataClean())
+  # 
+  #     length(queryDataClean())
+  #   })
+  # 
+  #   # Universe cleaned length
+  #   cleanResultsUniverse <- reactive({
+  #     # Make sure requirements are met
+  #     req(universeDataClean())
+  # 
+  #     length(universeDataClean())
+  #   })
+  
   ## Display table with number lipids in cleaned datasets ## 1. HAVING TROUBLE WITH THE REACTIVITY HERE - I WANT TO POPULATE THE TABLE WITH THE NUMBERS FROM THE FILE UPLOADS AS SOON AS THE FILE IS UPLOADED, AND THEN POPULATE THE REST OF THE TABLE WITH THE NUMBERS FROM THE CLEANED DATA AFTER THE BUTTON HAS BEEN CLICKED
   output$summary_data <- renderTable({
-
-    req(universeDataClean())
-    req(queryDataClean())
-    req(cleanResultsUniverse())
-    req(cleanResultsQuery())
-
+    input$query
+    input$universe
+    # req(universeDataClean())
+    # req(queryDataClean())
+    # req(cleanResultsUniverse())
+    # req(cleanResultsQuery())
+    
     # If query data uploaded
     if(!is.null(queryData())){
       uploadResultsQ <- nrow(queryData())
+    } else {
+      uploadResultsQ <- NA
     }
-
+    
     # If universe data uploaded
     if(!is.null(universeData())){
       uploadResultsU <- nrow(universeData())
+    } else {
+      uploadResultsU <- NA
     }
-
+    
     # If query data cleaned #
     if(!is.null(queryDataClean())){
       cleanResultsQ <- length(queryDataClean())
+    } else {
+      cleanResultsQ <- NA
     }
-
+    
     # If universe data cleaned #
     if(!is.null(universeDataClean())){
       cleanResultsU <- length(universeDataClean())
+    } else {
+      cleanResultsU <- NA
     }
-
+    
     #uploadResults <- unlist(uploadResults)
     #cleanResults <- unlist(cleanResultsQuery)
-
+    
     # Create a dataframe out of Before and After results from summaryFilterDataFrame
     data.frame('Uploaded' = c(uploadResultsQ, uploadResultsU),
                'Cleaned' = c(cleanResultsQ, cleanResultsU),
                row.names = c('Query',
                              'Universe'))
-
+    
   }, rownames = TRUE)
-
+  
   
   #### Action Button Reactions ####
   
   # Clean the 2 datasets #
-  queryDataClean <- eventReactive(input$check_click, {
+  # queryDataClean <- eventReactive(input$check_click, {
+  #   validate(
+  #     need(nrow(queryData()) > 0, 
+  #          'Please upload Query file with > 1 lipid')
+  #   )
+  #   
+  #   clean.lipid.list(X=queryData())
+  # })
+  queryDataClean <- reactive({
     validate(
       need(nrow(queryData()) > 0, 
            'Please upload Query file with > 1 lipid')
     )
-    
-    clean.lipid.list(X=queryData())
+    if (input$check_click > 0){
+      return(clean.lipid.list(X = queryData()))
+    } else {
+      return(NULL)
+    }
   })
   
-  universeDataClean <- eventReactive(input$check_click, {
+  universeDataClean <- reactive({
     validate(
       need(nrow(universeData()) > 0, 
-            'Please upload Universe file with > 1 lipid')
+           'Please upload Universe file with > 1 lipid')
     )
-    
-    clean.lipid.list(X=universeData())
+    if (input$check_click > 0){
+      return(clean.lipid.list(X = universeData()))
+    } else {
+      return(NULL)
+    }
   })
   
   
@@ -189,36 +212,48 @@ shinyServer(function(session, input, output){
     
     
     
-  
-    ## Download option for cleaned data ## 2. THESE BUTTONS SHOULD ONLY BE AVAILABLE ONCE THE DATA HAS BEEN SUCCESSFULLY CLEANED
-    output$downloadQueryClean <- downloadHandler(
-      filename = function() {
-        paste("Query_Data_Cleaned", ".txt", sep = "")
-      },
-      content = function(file) {
-        query = queryDataClean()
-        write.table(query, file, row.names = FALSE)
-      }
-    )
     
-    output$downloadUniverseClean <- downloadHandler(
-      filename = function() {
-        paste("Universe_Data_Cleaned", ".txt", sep = "")
-      },
-      content = function(file) {
-        universe = universeDataClean()
-        write.table(universe, file, row.names = FALSE)
-      }
-    )
-    
-    
-    
-    
+    # ## Download option for cleaned data ## 2. THESE BUTTONS SHOULD ONLY BE AVAILABLE ONCE THE DATA HAS BEEN SUCCESSFULLY CLEANED
     
   })
   
+  output$downloadQueryClean <- downloadHandler(
+    filename = function() {
+      paste("Query_Data_Cleaned", ".txt", sep = "")
+    },
+    content = function(file) {
+      query = queryDataClean()
+      write.table(query, file, row.names = FALSE)
+    }
+  )
+  
+  output$downloadQueryCleanUI <- renderUI({
+    if (is.null(queryDataClean())) {
+      return(NULL)
+    } else {
+      downloadButton("downloadQueryClean", "Download Cleaned Query Data")
+    }
+  })
   
 
+  
+  output$downloadUniverseClean <- downloadHandler(
+    filename = function() {
+      paste("Universe_Data_Cleaned", ".txt", sep = "")
+    },
+    content = function(file) {
+      universe = universeDataClean()
+      write.table(universe, file, row.names = FALSE)
+    }
+  )
+  
+  output$downloadUniverseCleanUI <- renderUI({
+    if (is.null(universeDataClean())) {
+      return(NULL)
+    } else {
+      downloadButton("downloadUniverseClean", "Download Cleaned Universe Data")
+    }
+  })
   
   ####### Enrichment Analysis Tab #######
   output$tempplaceholder = renderText({"Summary of tests can go here"})
@@ -307,7 +342,7 @@ shinyServer(function(session, input, output){
     HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
-                   
+    
   })
   
   
@@ -315,7 +350,7 @@ shinyServer(function(session, input, output){
   
   
   ####### Visualize Tab #######
- 
+  
   output$pie <- renderPlot({
     req(queryMined())
     chain.pieCat(Query.miner$chain)
