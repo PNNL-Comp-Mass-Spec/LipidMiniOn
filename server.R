@@ -14,7 +14,7 @@ library(rodin)
 library(DT)
 library(ggplot2)
 library(gridExtra)
-
+source("./run_the_tests.R")
 shinyServer(function(session, input, output){
   
   ######## Upload Tab ##############
@@ -279,23 +279,23 @@ shinyServer(function(session, input, output){
   
   subset_select <- reactive({
     req(input$cb_params_subclass)
-    cb_params_subclass
+    input$cb_params_subclass
   })
   
-  enrich <- reactive({
+  enrich_param <- reactive({
     req(input$cb_pval_filter)
-    cb_pval_filter
+    input$cb_pval_filter
   })
   
   p_type <- reactive({
     req(input$dd_pval_type)
-    dd_pval_type
+    input$dd_pval_type
   })
   
   
   p_value <- reactive({
     req(input$ue_pval_thresh)
-    ue_pval_thresh
+    input$ue_pval_thresh
   })
   
   # End of get user inputs #
@@ -304,10 +304,10 @@ shinyServer(function(session, input, output){
   #### Action Button Reactions ####
   
   # Run the specified test(s) when Process Data button is clicked #
-  global_results <- eventReactive(input$process_click, {
+  global_results <- eventReactive(input$precheck_click, {
     validate(
       # need cleaned query data #
-      need(length(querMined()) > 0, 
+      need(length(queryMined()) > 0, 
            'Please upload and clean Query data.'),
       # need cleaned universe data #
       need(length(universeMined()) > 0, 
@@ -316,8 +316,7 @@ shinyServer(function(session, input, output){
       need(!is.null(test_type),
            'Please select an enrichment test to use.')
     )
-    
-    run_the_test(Query.miner = queryMined(), Universe.miner = universeMined, test.type = test_type, general.select = general_select, subset.by = subset_by, subset.select = subset_select, enrich = enrich, pval = p_value, adjpval = p_type)
+    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = test_type(), general.select = general_select(), subset.by = subset_by(), subset.select = subset_select(), enrich = enrich_param(), pval = p_value(), adjpval = p_type())
   })
   
   output$global_results_table <- renderTable({
@@ -331,7 +330,7 @@ shinyServer(function(session, input, output){
     req(general_select())
     req(subset_by())
     req(subset_select())
-    req(enrich())
+    req(enrich_param())
     req(p_value())
     req(p_type())
     
@@ -339,7 +338,7 @@ shinyServer(function(session, input, output){
     HTML(paste('<h4 style= "color:#cc3d16">', c('general_select: ', general_select(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('subset_by: ', subset_by(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('subset_select: ', subset_select(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich(),'</h4>', sep="", collapse="")))
+    HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich_param(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
     HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
     

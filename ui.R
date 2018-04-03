@@ -19,8 +19,7 @@ shinyUI(#fluidPage(
   #mainPanel(
   
   # Output: Tabset w/ Upload and Visualize (graph) tabs
-  navbarPage(title = div(img(src = "minionlogo.png", height = 50, width = 50),
-                         "Lipid Mini-On: MINIng and ONtology"),
+  navbarPage(title = div(img(src = "logoteal.png", height = 60, width = 145)),
              windowTitle = "Lipid Mini-On: MINIng and ONtology",
              theme = "yeti.css",
              
@@ -88,10 +87,10 @@ shinyUI(#fluidPage(
                           ### Enrichment Test - dropdown ###
                           selectInput('dd_enrich_test', 'Enrichment test to use:',
                                       choices = c("Please select a test", 
-                                                  "Fisher's exact test",
-                                                  "EASE score (DAVID)",
-                                                  "Binomial test",
-                                                  "Hypergeometric test")
+                                                  "Fisher's exact test" = "Fisher",
+                                                  "EASE score (DAVID)" = "EASE",
+                                                  "Binomial test" = "Binom",
+                                                  "Hypergeometric test" = "Hyper")
                           ),
                           
                           
@@ -122,9 +121,9 @@ shinyUI(#fluidPage(
                           
                           ### What to look at in the subset - checkbox group ###
                           checkboxGroupInput("cb_params_subclass", "Main class specific parameters",
-                                             choices = c("Total number of chain carbon within each class" = 1,
-                                                         "Total number of chain insaturations" = 2,
-                                                         "Specific chains" = 3)
+                                             choices = c("Total number of chain carbon within each class" = "total_carbon",
+                                                         "Total number of chain insaturations" = "total_insaturation",
+                                                         "Specific chains" = "specific_chains")
                           ),
                           
                           
