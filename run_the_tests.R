@@ -3,7 +3,7 @@
 #
 
 run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select, subset.by, subset.select, enrich, pval, adjpval){
-  browser()
+
   intact_cat_result <- intact_main_result <- intact_sub_result <- chain_result <- allchains_result <- sub_total_carbon_result <- sub_total_DB_result <- sub_allchains_result <- NULL
   if(test.type=="Fisher"){
     #intact cat
