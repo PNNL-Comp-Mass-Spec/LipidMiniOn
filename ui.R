@@ -178,18 +178,14 @@ shinyUI(#fluidPage(
                           
                           selectInput('chooseplots', 'I want to plot a',
                                       choices = c('Pie Chart' = 1,
-                                                  'Other?' = 2)
+                                                  'Stacked Barchart' = 2)
                           )
                         ),
                         
                         mainPanel(
                           width = 7, 
-                          conditionalPanel(
-                            condition = "input.chooseplots == 1",
-                            plotOutput("pie")
-                          )
-                          
-                          
+                            plotOutput("vizPlot")
+
                         )
                       )
              )

@@ -349,11 +349,19 @@ shinyServer(function(session, input, output){
   
   
   ####### Visualize Tab #######
-  
-  output$pie <- renderPlot({
+  output$vizPlot <- renderPlot({
     req(queryMined())
-    chain.pieCat(Query.miner$chain)
+    if (input$chooseplots == 1) {
+      return(chain.pieCat(queryMined()$chain))
+    }
+    else if (input$chooseplots == 2) {
+      return(chain.stack(queryMined()$chain))
+    }
   })
-  
+  # output$pie <- renderPlot({
+  #   req(queryMined())
+  #   chain.pieCat(queryMined()$chain)
+  # })
+  # 
   
 })
