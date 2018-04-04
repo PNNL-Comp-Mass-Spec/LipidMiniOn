@@ -259,45 +259,45 @@ shinyServer(function(session, input, output){
   output$tempplaceholder = renderText({"Summary of tests can go here"})
   output$pvalue_text = renderText({"P-value filter"})
   
-  # initialize the user input values? 
-  
-  # Get user inputs #
+  # # initialize the user input values? 
+  # 
+  # # Get user inputs #
   test_type <- reactive({
     req(input$dd_enrich_test)
     input$dd_enrich_test
   })
-  
+
   general_select <- reactive({
     req(input$cb_test_params)
     input$cb_test_params
   })
-  
+
   subset_by <- reactive({
     req(input$dd_subset_id)
     input$dd_subset_id
   })
-  
+
   subset_select <- reactive({
     req(input$cb_params_subclass)
     input$cb_params_subclass
   })
-  
-  enrich_param <- reactive({
-    req(input$cb_pval_filter)
-    input$cb_pval_filter
-  })
-  
+
+  # enrich_param <- reactive({
+  #   req(input$cb_pval_filter)
+  #   input$cb_pval_filter
+  # })
+
   p_type <- reactive({
     req(input$dd_pval_type)
     input$dd_pval_type
   })
-  
-  
+
+
   p_value <- reactive({
     req(input$ue_pval_thresh)
     input$ue_pval_thresh
   })
-  
+  # 
   # End of get user inputs #
   
   
@@ -313,10 +313,10 @@ shinyServer(function(session, input, output){
       need(length(universeMined()) > 0, 
            'Please upload and clean Universe data.'),
       # need (at the min) test type #
-      need(!is.null(test_type),
+      need(input$dd_enrich_test != "none",
            'Please select an enrichment test to use.')
     )
-    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = test_type(), general.select = general_select(), subset.by = subset_by(), subset.select = subset_select(), enrich = enrich_param(), pval = p_value(), adjpval = p_type())
+    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$cb_params_subclass, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
   })
   
   output$global_results_table <- renderTable({

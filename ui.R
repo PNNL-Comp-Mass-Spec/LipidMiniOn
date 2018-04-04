@@ -86,7 +86,7 @@ shinyUI(#fluidPage(
                           
                           ### Enrichment Test - dropdown ###
                           selectInput('dd_enrich_test', 'Enrichment test to use:',
-                                      choices = c("Please select a test", 
+                                      choices = c("Please select a test" = "none", 
                                                   "Fisher's exact test" = "Fisher",
                                                   "EASE score (DAVID)" = "EASE",
                                                   "Binomial test" = "Binom",
@@ -131,8 +131,8 @@ shinyUI(#fluidPage(
                           
                           ### P-value Filter - checkbox ###
                           textOutput("pvalue_text"),
-                          checkboxInput("cb_pval_filter", "Implement a p-value filter by subsetting to lipids with a(n)", value = FALSE
-                          ),
+                          checkboxInput("cb_pval_filter", "Implement a p-value filter by subsetting to lipids with a(n)",
+                                          value = FALSE),
                           
                           ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
                           selectInput("dd_pval_type", "",
