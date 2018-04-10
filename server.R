@@ -177,7 +177,7 @@ shinyServer(function(session, input, output){
            'There are zero lipids in the cleaned query data')
     )
     
-    lipid.miner(queryDataClean(), Name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+    lipid.miner(queryDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
   })
   
   universeMined <- eventReactive(input$check_click, {
@@ -186,7 +186,7 @@ shinyServer(function(session, input, output){
            'There are zero lipids in the cleaned universe data')
     )
     
-    lipid.miner(universeDataClean(), Name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+    lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
   })
   
   
@@ -352,10 +352,10 @@ shinyServer(function(session, input, output){
   output$vizPlot <- renderPlot({
     req(queryMined())
     if (input$chooseplots == 1) {
-      return(chain.pieCat(queryMined()$chain))
+      return(chain.length.pie(queryMined()$chain))
     }
     else if (input$chooseplots == 2) {
-      return(chain.stack(queryMined()$chain))
+      return(chain.length.stack(queryMined()$chain))
     }
   })
   # output$pie <- renderPlot({
