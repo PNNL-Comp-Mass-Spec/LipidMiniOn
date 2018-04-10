@@ -282,10 +282,10 @@ shinyServer(function(session, input, output){
     input$cb_params_subclass
   })
 
-  # enrich_param <- reactive({
-  #   req(input$cb_pval_filter)
-  #   input$cb_pval_filter
-  # })
+  enrich_param <- reactive({
+    req(input$cb_pval_filter)
+    input$cb_pval_filter
+  })
 
   p_type <- reactive({
     req(input$dd_pval_type)
@@ -319,31 +319,31 @@ shinyServer(function(session, input, output){
     run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$cb_params_subclass, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
   })
   
-  output$global_results_table <- renderTable({
+  output$global_results_table <- DT::renderDataTable({
     req(global_results())
     global_results()
   })
   
   # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
-  output$param_check <- renderUI({
-    req(test_type()) 
-    req(general_select())
-    req(subset_by())
-    req(subset_select())
-    req(enrich_param())
-    req(p_value())
-    req(p_type())
-    
-    HTML(paste('<h4 style= "color:#cc3d16">', c('test_type: ', test_type(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('general_select: ', general_select(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('subset_by: ', subset_by(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('subset_select: ', subset_select(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich_param(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
-    HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
-    
-  })
-  
+  # output$param_check <- renderUI({
+  #   req(test_type()) 
+  #   req(general_select())
+  #   req(subset_by())
+  #   req(subset_select())
+  #   req(enrich_param())
+  #   req(p_value())
+  #   req(p_type())
+  #   
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('test_type: ', test_type(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('general_select: ', general_select(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('subset_by: ', subset_by(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('subset_select: ', subset_select(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich_param(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
+  #   HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
+  #   
+  # })
+  # 
   
   
   
@@ -352,6 +352,7 @@ shinyServer(function(session, input, output){
   output$vizPlot <- renderPlot({
     req(queryMined())
     if (input$chooseplots == 1) {
+      
       return(chain.length.pie(queryMined()$chain))
     }
     else if (input$chooseplots == 2) {

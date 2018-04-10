@@ -3,7 +3,6 @@
 #
 
 run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select, subset.by, subset.select, enrich, pval, adjpval){
-
   intact_cat_result <- intact_main_result <- intact_sub_result <- chain_result <- allchains_result <- sub_total_carbon_result <- sub_total_DB_result <- sub_allchains_result <- NULL
   if(test.type=="Fisher"){
     #intact cat
@@ -308,7 +307,6 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
   
   
   # organize the results #
-  
   title.enrich<-NA
   
   #create a global output object (for a global download of the results)
@@ -316,76 +314,92 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
   colnames(global.output)<-c("Test.performed","Classifier","Count.query","Count.universe","%.query","%.universe","Pvalue","BHadjustPvalue","fold.change")
   
   options(warn=-1)
-  if(!is.null(intact_cat_result)){
+  if (!is.null(intact_cat_result)) {
+    if (nrow(intact_cat_result) > 0){
     title.enrich<- paste("Category(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     intact_cat_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich,intact_cat_result))
+    }
   }
   
   if(!is.null(intact_main_result)){
+    if(nrow(intact_main_result) > 0){
     title.enrich<- paste("Main class(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     intact_main_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich,intact_main_result))
+    }
   }
   
   if(!is.null(intact_sub_result)){
+    if(nrow(intact_sub_result) > 0){
     title.enrich <- paste("Sub class(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     intact_sub_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich,intact_sub_result))
+    }
   }
   
-  if(!is.null(chain_result)){
+  if (!is.null(chain_result)){
+    if(nrow(chain_result) != 0){
     title.enrich<- paste("Chain(s) characteristics(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     chain_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich,chain_result))
+    }
   }
   
   if(!is.null(allchains_result)){
+    if(nrow(allchains_result) != 0){
     title.enrich<- paste("Specific chain(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     allchains_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich,allchains_result))
+    }
   }
   
   if(!is.null(sub_total_carbon_result)){
+    if(nrow(sub_total_carbon_result) != 0){
     title.enrich<- paste("Total chain carbon by ",subset.by,"(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     sub_total_carbon_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich, sub_total_carbon_result))
+    }
   }
   
   if(!is.null(sub_total_DB_result)){
+    if(nrow(sub_total_DB_result) != 0){
     title.enrich<- paste("Total number of DB by ",subset.by,"(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     sub_total_DB_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich, sub_total_DB_result))
+    }
   }
   
   if(!is.null(sub_allchains_result)){
+    if(nrow(sub_allchains_result) != 0){
     title.enrich<- paste("Specific chains by ",subset.by,"(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
     sub_allchains_result
     global.output<-rbind(global.output,cbind(Test.performed=title.enrich, sub_allchains_result))
+    }
   }
   
   # return the global output #

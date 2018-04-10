@@ -162,7 +162,7 @@ shinyUI(#fluidPage(
                           
                           uiOutput("param_check"),
                           
-                          tableOutput("global_results_table")
+                          DT::dataTableOutput("global_results_table")
                           
                         )
                         
