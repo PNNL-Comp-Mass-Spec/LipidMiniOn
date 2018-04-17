@@ -368,7 +368,6 @@ shinyServer(function(session, input, output){
     if (input$chooseplots == 1) {
       if (input$type == "Category") {
         if (input$pie1) {
-          browser()
           p1 <- ggplotly(intact.cat.pie(universeMined()$intact)+ggtitle("Universe (Category)")) %>% plotly_data()
           pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
                          textposition = 'inside',
