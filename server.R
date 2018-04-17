@@ -13,6 +13,7 @@ library(shiny)
 library(rodin)
 library(DT)
 library(ggplot2)
+library(plotly)
 library(gridExtra)
 source("./run_the_tests.R")
 shinyServer(function(session, input, output){
@@ -349,14 +350,86 @@ shinyServer(function(session, input, output){
   
   
   ####### Visualize Tab #######
-  output$vizPlot <- renderPlot({
+  output$vizUI <- renderUI({
+    #-------- Classification Charts --------#
+    if (input$chooseplots == 1) {
+      tagList(
+      radioButtons(inputId = "type" ,label = "Type", 
+                         choices = c("Category", "Main Class", "Subclass"),
+                   selected = "Category"),
+      
+      checkboxInput(inputId = "pie1", label = "View as Pie Chart")
+      )
+    }
+  })
+  
+  output$vizPlot <- renderPlotly({
     req(queryMined())
     if (input$chooseplots == 1) {
+      if (input$type == "Category") {
+        if (input$pie1) {
+          browser()
+          p1 <- ggplotly(intact.cat.pie(universeMined()$intact)+ggtitle("Universe (Category)")) %>% plotly_data()
+          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          p2 <- ggplotly(intact.cat.pie(queryMined()$intact) + ggtitle("Query (Category)")) %>% plotly_data()
+          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          return(subplot(pp1,pp2))
+        } else {
+          p1 <- ggplotly(intact.cat.stack(universeMined()$intact)+ggtitle("Category Universe"), tooltip = 'tag') 
+          p2 <- ggplotly(intact.cat.stack(queryMined()$intact)+ggtitle("Category Query"), tooltip = 'tag') 
+          return(subplot(p1,p2))
+        }
+      }
+      if (input$type == "Main Class") {
+        if (input$pie1) {
+          p1 <- ggplotly(intact.main.pie(universeMined()$intact)+ggtitle("Universe (Main Class)")) %>% plotly_data()
+          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          p2 <- ggplotly(intact.main.pie(queryMined()$intact)+ggtitle("Query (Main Class)")) %>% plotly_data()
+          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          return(subplot(pp1,pp2))
+        } else {
+          p1 <- ggplotly(intact.main.stack(universeMined()$intact)+ggtitle("Universe (Main Class)"), tooltip = 'tag') 
+          p2 <- ggplotly(intact.main.stack(queryMined()$intact)+ggtitle("Query (Main Class)"), tooltip = 'tag') 
+          return(subplot(p1,p2))
+        }
+      } 
       
-      return(chain.length.pie(queryMined()$chain))
+      
+      p2 <- ggplotly(intact.main.pie(universeMined()$intact)+ggtitle("MainClass Universe")) %>% plotly_data()
+      p3 <- ggplotly(intact.sub.pie(universeMined()$intact)+ggtitle("SubClass Universe")) %>% plotly_data()
+      
+      #----- make these charts plotly style ---------#
+      
+      pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+              textposition = 'inside',
+              textinfo = 'label+percent')
+      pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+                     textposition = 'inside',
+                     textinfo = 'label+percent')
+      pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
+              textposition = 'inside',
+              textinfo = 'label+percent')
+     subplot(pp1,pp2,pp3)
     }
     else if (input$chooseplots == 2) {
-      return(chain.length.stack(queryMined()$chain))
+      # category
+      p1 <- ggplotly(intact.cat.stack(universeMined()$intact)+ggtitle("Category Universe"), tooltip = 'tag') 
+      p2 <- ggplotly(intact.cat.stack(queryMined()$intact)+ggtitle("Category Query"), tooltip = 'tag') 
+      p3 <- ggplotly(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"), tooltip = 'tag') 
+      p4 <- ggplotly(intact.main.stack(queryMined()$intact)+ggtitle("Main Query"), tooltip = 'tag') 
+      p5 <- ggplotly(intact.sub.stack(universeMined()$intact)+ggtitle("Sub Universe"), tooltip = 'tag') 
+      p6 <- ggplotly(intact.sub.stack(queryMined()$intact)+ggtitle("Sub Query"), tooltip = 'tag') 
+      subplot(p1,p2,p3,p4,p5,p6, nrows = 3)
+      #   grid.arrange(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"),intact.main.stack(queryMined()$intact)+ggtitle(" Main Query"),ncol=2)
+      # plotly::ggplotly(grid.arrange(p1,p2,ncol=1))
     }
   })
   # output$pie <- renderPlot({

@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(plotly)
 
 # Define UI for application that draws a histogram
 shinyUI(#fluidPage(
@@ -60,7 +61,7 @@ shinyUI(#fluidPage(
                         mainPanel(
                           width = 8,
                           uiOutput("process_success"),
-
+                          
                           # Summary table giving number lipids # 1. HAVING TROUBLE WITH THE REACTIVITY HERE (SEE THE SERVER FILE FOR A NOTE ON WHAT I'M TRYING TO DO), ALSO GETTING ERROR ABOUT SUBSETTING...
                           wellPanel(
                             width = 6,
@@ -132,7 +133,7 @@ shinyUI(#fluidPage(
                           ### P-value Filter - checkbox ###
                           textOutput("pvalue_text"),
                           checkboxInput("cb_pval_filter", "Implement a p-value filter by subsetting to lipids with a(n)",
-                                          value = FALSE),
+                                        value = FALSE),
                           
                           ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
                           selectInput("dd_pval_type", "",
@@ -176,16 +177,16 @@ shinyUI(#fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           
-                          selectInput('chooseplots', 'I want to plot a',
-                                      choices = c('Pie Chart' = 1,
-                                                  'Stacked Barchart' = 2)
-                          )
+                          selectInput('chooseplots', 'I want to view',
+                                      choices = c('Classifications' = 1,
+                                                  'Fatty Acid Characteristics' = 2,
+                                                  'Specific Chains' = 3)
+                          ),
+                          uiOutput("vizUI")
                         ),
                         
                         mainPanel(
-                          width = 7, 
-                            plotOutput("vizPlot")
-
+                          plotlyOutput("vizPlot")
                         )
                       )
              )
