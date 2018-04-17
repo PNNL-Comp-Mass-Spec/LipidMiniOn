@@ -16,8 +16,51 @@ library(ggplot2)
 library(plotly)
 library(gridExtra)
 source("./run_the_tests.R")
-shinyServer(function(session, input, output){
+createPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
+  p1 <- ggplotly(intact.cat.pie(pie_data1)) %>% plotly_data()
+  p2 <- ggplotly(intact.cat.pie(pie_data2)) %>% plotly_data()
+  pp <- plot_ly() %>%
+    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0, 0.45), y = c(0, 1)),
+            marker = list(colors = p1$Color)) %>%
+    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0.55, 1), y = c(0, 1)),
+            marker = list(colors = p2$Color)) %>%
+    layout(showlegend = FALSE, annotations = list(
+      list(
+        x = 0.225, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = left_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      ),
+      list(
+        x = 0.775, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = right_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      )
+    ))
+  return(pp)
+}
+createBarCharts <- function(bar_data1, bar_data2, left_title, right_title){
   
+}
+
+shinyServer(function(session, input, output){
   ######## Upload Tab ##############
   
   #### Sidebar Panel ####
@@ -363,24 +406,43 @@ shinyServer(function(session, input, output){
     }
   })
   
+  
   output$vizPlot <- renderPlotly({
     req(queryMined())
+    
     if (input$chooseplots == 1) {
       if (input$type == "Category") {
         if (input$pie1) {
-          p1 <- ggplotly(intact.cat.pie(universeMined()$intact)+ggtitle("Universe (Category)")) %>% plotly_data()
-          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          p2 <- ggplotly(intact.cat.pie(queryMined()$intact) + ggtitle("Query (Category)")) %>% plotly_data()
-          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          return(subplot(pp1,pp2))
+          return(createPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
+                                 left_title = "Universe (Category)", right_title = "Query (Category)"))
         } else {
-          p1 <- ggplotly(intact.cat.stack(universeMined()$intact)+ggtitle("Category Universe"), tooltip = 'tag') 
-          p2 <- ggplotly(intact.cat.stack(queryMined()$intact)+ggtitle("Category Query"), tooltip = 'tag') 
-          return(subplot(p1,p2))
+          p1 <- ggplotly(intact.cat.stack(universeMined()$intact), tooltip = 'tag') 
+          p2 <- ggplotly(intact.cat.stack(queryMined()$intact), tooltip = 'tag') 
+          return(subplot(p1,p2) %>% layout(annotations = list(
+            list(
+              x = 0.225, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Universe (Category)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.775, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Query (Category)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            )
+          ))
+          )
         }
       }
       if (input$type == "Main Class") {
@@ -395,28 +457,88 @@ shinyServer(function(session, input, output){
                          textinfo = 'label+percent')
           return(subplot(pp1,pp2))
         } else {
-          p1 <- ggplotly(intact.main.stack(universeMined()$intact)+ggtitle("Universe (Main Class)"), tooltip = 'tag') 
-          p2 <- ggplotly(intact.main.stack(queryMined()$intact)+ggtitle("Query (Main Class)"), tooltip = 'tag') 
-          return(subplot(p1,p2))
+          p1 <- ggplotly(intact.main.stack(universeMined()$intact), tooltip = 'tag') 
+          p2 <- ggplotly(intact.main.stack(queryMined()$intact), tooltip = 'tag') 
+          return(subplot(p1,p2) %>% layout(annotations = list(
+            list(
+              x = 0.225, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Universe (Main Class)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.775, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Query (Main Class)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            )
+          ))
+          )
         }
       } 
-      
-      
-      p2 <- ggplotly(intact.main.pie(universeMined()$intact)+ggtitle("MainClass Universe")) %>% plotly_data()
-      p3 <- ggplotly(intact.sub.pie(universeMined()$intact)+ggtitle("SubClass Universe")) %>% plotly_data()
-      
+      if (input$type == "Subclass") {
+        if (input$pie1) {
+          p1 <- ggplotly(intact.sub.pie(universeMined()$intact)+ggtitle("Universe (Main Class)")) %>% plotly_data()
+          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          p2 <- ggplotly(intact.sub.pie(queryMined()$intact)+ggtitle("Query (Main Class)")) %>% plotly_data()
+          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+                         textposition = 'inside',
+                         textinfo = 'label+percent')
+          return(subplot(pp1,pp2))
+        } else {
+          p1 <- ggplotly(intact.sub.stack(universeMined()$intact), tooltip = 'tag') 
+          p2 <- ggplotly(intact.sub.stack(queryMined()$intact), tooltip = 'tag') 
+          return(subplot(p1,p2) %>% layout(annotations = list(
+            list(
+              x = 0.225, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Universe (Subclass)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.775, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Query (Subclass)", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            )
+          ))
+          )
+        }
+      }
       #----- make these charts plotly style ---------#
       
-      pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-              textposition = 'inside',
-              textinfo = 'label+percent')
-      pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-                     textposition = 'inside',
-                     textinfo = 'label+percent')
-      pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
-              textposition = 'inside',
-              textinfo = 'label+percent')
-     subplot(pp1,pp2,pp3)
+     #  pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+     #          textposition = 'inside',
+     #          textinfo = 'label+percent')
+     #  pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+     #                 textposition = 'inside',
+     #                 textinfo = 'label+percent')
+     #  pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
+     #          textposition = 'inside',
+     #          textinfo = 'label+percent')
+     # subplot(pp1,pp2,pp3)
     }
     else if (input$chooseplots == 2) {
       # category
