@@ -184,7 +184,10 @@ shinyUI(#fluidPage(
                                                   'Fatty Acid Characteristics' = 2,
                                                   'Specific Chains' = 3)
                           ),
-                          uiOutput("vizUI")
+                          uiOutput("vizUI"),
+                          conditionalPanel(condition = 'input.chooseplots == 3', {
+                            uiOutput("chain_subset")
+                          })
                         ),
                         
                         mainPanel(

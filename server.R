@@ -471,7 +471,6 @@ shinyServer(function(session, input, output){
   
   ####### Visualize Tab #######
   output$vizUI <- renderUI({
-
     #-------- Classification Charts --------#
     if (input$chooseplots == 1) {
       return(tagList(
@@ -483,11 +482,33 @@ shinyServer(function(session, input, output){
       )
       )
     }
+    #-------- Chain Charts --------#
     if (input$chooseplots == 2) {
        return(checkboxInput(inputId = "pie2", label = "View as Pie Chart"))
     }
+    #-------- Subset Charts --------#
+    if (input$chooseplots == 3) {
+      radioButtons(inputId = "classification_type" ,label = "Select a Classification Type", 
+                   choices = c("Category", "Main Class", "Subclass"),
+                   selected = "Category")
+    }
   })
   
+  output$chain_subset <- renderUI({
+    if (input$classification_type == "Category") {
+    selectInput(inputId = "subset_name", "Select a Chain", 
+                choices = queryMined()$intact$Category,
+                selected = queryMined()$intact$Category[1])
+  } else if (input$classification_type == "Main Class") {
+    selectInput(inputId = "subset_name", "Select a Chain", 
+                choices = queryMined()$intact$`Main class`,
+                selected = queryMined()$intact$`Main class`[1])
+  } else if (input$classification_type == "Subclass") {
+    selectInput(inputId = "subset_name", "Select a Chain", 
+                choices = queryMined()$intact$`Sub class`,
+                selected = queryMined()$intact$`Sub class`[1])
+  }
+  })
   
   output$vizPlot <- renderPlotly({
     req(queryMined())
@@ -722,7 +743,7 @@ shinyServer(function(session, input, output){
         ),
         list(
           x = 0.225, 
-          y = 0.5, 
+          y = 0.45, 
           font = list(size = 16), 
           showarrow = FALSE, 
           text = "Universe Chain Saturation", 
@@ -733,7 +754,7 @@ shinyServer(function(session, input, output){
         ),
         list(
           x = 0.775, 
-          y = 0.5, 
+          y = 0.45, 
           font = list(size = 16), 
           showarrow = FALSE, 
           text = "Query Chain Saturation", 
@@ -748,7 +769,22 @@ shinyServer(function(session, input, output){
       }
     }
     else if (input$chooseplots == 3) {
-      
+    if (input$classification_type == "Category") {
+      validate(need(input$subset_name != "", message = "Please select a subset chain"))
+      ggplotly(allchains.barplot(subsetcat(universeMined()$allchains, cat = input$subset_name),
+                        subsetcat(queryMined()$allchains, cat = input$subset_name))+
+                     ggtitle(paste("All chains of the category", input$subset_name)))
+    } else if(input$classification_type == "Main Class") {
+      validate(need(input$subset_name != "", message = "Please select a subset chain"))
+      ggplotly(allchains.barplot(subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
+                                 subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
+                 ggtitle(paste("All chains of the category", input$subset_name)))
+    } else if(input$classification_type == "Subclass") {
+      validate(need(input$subset_name != "", message = "Please select a subset chain"))
+      ggplotly(allchains.barplot(subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
+                                 subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
+               ggtitle(paste("All chains of the category", input$subset_name)))
+    }
     }
   })
   # output$pie <- renderPlot({
