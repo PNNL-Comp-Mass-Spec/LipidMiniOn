@@ -4523,7 +4523,6 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
   color: #ffffff;
-  background-color: #272727;
 }
 .navbar-default .navbar-nav > .disabled > a,
 .navbar-default .navbar-nav > .disabled > a:hover,
@@ -7068,3 +7067,17 @@ input[type="checkbox"] {
 .modal .close {
   color: #222222;
 }
+
+
+ /* Sarah's stuff! */
+.navbar li { background-color: #336633; opacity: .3;}
+.navbar li:nth-of-type(2n) { background-color: #336666; opacity: .3;}
+.navbar li:nth-of-type(3n) { background-color: #CC9933; opacity: .3;}
+.navbar li:nth-of-type(4n) { background-color: #990033; opacity: .3;}
+
+.navbar li.active { opacity: 1;}
+.navbar li.active:nth-of-type(2n) { opacity: 1;}
+.navbar li.active:nth-of-type(3n) { opacity: 1;}
+.navbar li.active:nth-of-type(4n) { opacity: 1;}
+
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover { background-color: initial;}
