@@ -16,7 +16,7 @@ library(ggplot2)
 library(plotly)
 library(gridExtra)
 source("./run_the_tests.R")
-createPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
+createCatPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
   p1 <- ggplotly(intact.cat.pie(pie_data1)) %>% plotly_data()
   p2 <- ggplotly(intact.cat.pie(pie_data2)) %>% plotly_data()
   pp <- plot_ly() %>%
@@ -56,8 +56,85 @@ createPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
     ))
   return(pp)
 }
-createBarCharts <- function(bar_data1, bar_data2, left_title, right_title){
-  
+createMainPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
+  p1 <- ggplotly(intact.main.pie(pie_data1)) %>% plotly_data()
+  p2 <- ggplotly(intact.main.pie(pie_data2)) %>% plotly_data()
+  pp <- plot_ly() %>%
+    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0, 0.45), y = c(0, 1)),
+            marker = list(colors = p1$Color)) %>%
+    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0.55, 1), y = c(0, 1)),
+            marker = list(colors = p2$Color)) %>%
+    layout(showlegend = FALSE, annotations = list(
+      list(
+        x = 0.225, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = left_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      ),
+      list(
+        x = 0.775, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = right_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      )
+    ))
+  return(pp)
+}
+createSubPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
+  p1 <- ggplotly(intact.sub.pie(pie_data1)) %>% plotly_data()
+  p2 <- ggplotly(intact.sub.pie(pie_data2)) %>% plotly_data()
+  pp <- plot_ly() %>%
+    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0, 0.45), y = c(0, 1)),
+            marker = list(colors = p1$Color)) %>%
+    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
+            textposition = 'inside',
+            textinfo = 'label',
+            domain = list(x = c(0.55, 1), y = c(0, 1)),
+            marker = list(colors = p2$Color)) %>%
+    layout(showlegend = FALSE, annotations = list(
+      list(
+        x = 0.225, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = left_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      ),
+      list(
+        x = 0.775, 
+        y = 1.0, 
+        font = list(size = 16), 
+        showarrow = FALSE, 
+        text = right_title, 
+        xanchor = "center", 
+        xref = "paper", 
+        yanchor = "bottom", 
+        yref = "paper"
+      )
+    ))
+  return(pp)
 }
 
 shinyServer(function(session, input, output){
@@ -394,26 +471,33 @@ shinyServer(function(session, input, output){
   
   ####### Visualize Tab #######
   output$vizUI <- renderUI({
+
     #-------- Classification Charts --------#
     if (input$chooseplots == 1) {
-      tagList(
+      return(tagList(
       radioButtons(inputId = "type" ,label = "Type", 
                          choices = c("Category", "Main Class", "Subclass"),
                    selected = "Category"),
       
       checkboxInput(inputId = "pie1", label = "View as Pie Chart")
       )
+      )
+    }
+    if (input$chooseplots == 2) {
+       return(checkboxInput(inputId = "pie2", label = "View as Pie Chart"))
     }
   })
   
   
   output$vizPlot <- renderPlotly({
     req(queryMined())
-    
+    # validate(need(!is.null(input$chooseplots), message = "Please select a plot to view"))
+    #
     if (input$chooseplots == 1) {
+      validate(need(!is.null(input$type), message = "Please select a plot type"))
       if (input$type == "Category") {
         if (input$pie1) {
-          return(createPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
+          return(createCatPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
                                  left_title = "Universe (Category)", right_title = "Query (Category)"))
         } else {
           p1 <- ggplotly(intact.cat.stack(universeMined()$intact), tooltip = 'tag') 
@@ -447,15 +531,9 @@ shinyServer(function(session, input, output){
       }
       if (input$type == "Main Class") {
         if (input$pie1) {
-          p1 <- ggplotly(intact.main.pie(universeMined()$intact)+ggtitle("Universe (Main Class)")) %>% plotly_data()
-          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          p2 <- ggplotly(intact.main.pie(queryMined()$intact)+ggtitle("Query (Main Class)")) %>% plotly_data()
-          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          return(subplot(pp1,pp2))
+          return(createMainPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
+                                 left_title = "Universe (Main Class)", right_title = "Query (Main Class)"))
+          
         } else {
           p1 <- ggplotly(intact.main.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.main.stack(queryMined()$intact), tooltip = 'tag') 
@@ -488,15 +566,8 @@ shinyServer(function(session, input, output){
       } 
       if (input$type == "Subclass") {
         if (input$pie1) {
-          p1 <- ggplotly(intact.sub.pie(universeMined()$intact)+ggtitle("Universe (Main Class)")) %>% plotly_data()
-          pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          p2 <- ggplotly(intact.sub.pie(queryMined()$intact)+ggtitle("Query (Main Class)")) %>% plotly_data()
-          pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-                         textposition = 'inside',
-                         textinfo = 'label+percent')
-          return(subplot(pp1,pp2))
+          return(createSubPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
+                                     left_title = "Universe (Sub Class)", right_title = "Query (Sub Class)"))
         } else {
           p1 <- ggplotly(intact.sub.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.sub.stack(queryMined()$intact), tooltip = 'tag') 
@@ -541,16 +612,143 @@ shinyServer(function(session, input, output){
      # subplot(pp1,pp2,pp3)
     }
     else if (input$chooseplots == 2) {
-      # category
-      p1 <- ggplotly(intact.cat.stack(universeMined()$intact)+ggtitle("Category Universe"), tooltip = 'tag') 
-      p2 <- ggplotly(intact.cat.stack(queryMined()$intact)+ggtitle("Category Query"), tooltip = 'tag') 
-      p3 <- ggplotly(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"), tooltip = 'tag') 
-      p4 <- ggplotly(intact.main.stack(queryMined()$intact)+ggtitle("Main Query"), tooltip = 'tag') 
-      p5 <- ggplotly(intact.sub.stack(universeMined()$intact)+ggtitle("Sub Universe"), tooltip = 'tag') 
-      p6 <- ggplotly(intact.sub.stack(queryMined()$intact)+ggtitle("Sub Query"), tooltip = 'tag') 
-      subplot(p1,p2,p3,p4,p5,p6, nrows = 3)
+      # chains
+      validate(need(!is.null(input$pie2), message = ""))
+      p1 <- ggplotly(chain.length.stack(universeMined()$chain), tooltip = 'tag') 
+      p2 <- ggplotly(chain.length.stack(queryMined()$chain), tooltip = 'tag') 
+      p3 <- ggplotly(chain.unsat.stack(universeMined()$chain), tooltip = 'tag') 
+      p4 <- ggplotly(chain.unsat.stack(queryMined()$chain), tooltip = 'tag') 
+      
+      if (input$pie2) {
+        unsat_colors <- c("#ff281d", "#ff6840", "#ff9750", "#ffc950")
+        length_colors <- c("#17aeae","#6bbfb9", "#a7dbd9","#d7f4f0" )
+        p1 <- plotly_data(p1) %>% mutate(Color = rev(length_colors))
+        p2 <- plotly_data(p2) %>% mutate(Color = rev(length_colors))
+        p3 <- plotly_data(p3) %>% mutate(Color = rev(unsat_colors))
+        p4 <- plotly_data(p4) %>% mutate(Color = rev(unsat_colors))
+        
+        
+        pp <- plot_ly() %>%
+          add_pie(data = p1, labels = ~tag, values = ~percentage, 
+                  textposition = 'inside',
+                  textinfo = 'label',
+                  domain = list(x = c(0, 0.45), y = c(0.6, 1)),
+                  marker = list(colors = p1$Color)) %>%
+          add_pie(data = p2, labels = ~tag, values = ~percentage, 
+                  textposition = 'inside',
+                  textinfo = 'label',
+                  domain = list(x = c(0.55, 1), y = c(0.6, 1)),
+                  marker = list(colors = p2$Color)) %>%
+          add_pie(data = p3, labels = ~tag, values = ~percentage, 
+                  textposition = 'inside',
+                  textinfo = 'label',
+                  domain = list(x = c(0, 0.45), y = c(0, 0.4)),
+                  marker = list(colors = p3$Color)) %>%
+          add_pie(data = p4, labels = ~tag, values = ~percentage, 
+                  textposition = 'inside',
+                  textinfo = 'label',
+                  domain = list(x = c(0.55, 1), y = c(0, 0.4)),
+                  marker = list(colors = p4$Color)) %>%
+          layout(showlegend = FALSE, annotations = list(
+            list(
+              x = 0.225, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Universe Chain Length", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.775, 
+              y = 1.0, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Query Chain Length", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.225, 
+              y = 0.45, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Universe Chain Saturation", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            ),
+            list(
+              x = 0.775, 
+              y = 0.45, 
+              font = list(size = 16), 
+              showarrow = FALSE, 
+              text = "Query Chain Saturation", 
+              xanchor = "center", 
+              xref = "paper", 
+              yanchor = "bottom", 
+              yref = "paper"
+            )
+          ))
+        return(pp)
+      } else {
+      subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
+        list(
+          x = 0.225, 
+          y = 1.0, 
+          font = list(size = 16), 
+          showarrow = FALSE, 
+          text = "Universe Chain Length", 
+          xanchor = "center", 
+          xref = "paper", 
+          yanchor = "bottom", 
+          yref = "paper"
+        ),
+        list(
+          x = 0.775, 
+          y = 1.0, 
+          font = list(size = 16), 
+          showarrow = FALSE, 
+          text = "Query Chain Length", 
+          xanchor = "center", 
+          xref = "paper", 
+          yanchor = "bottom", 
+          yref = "paper"
+        ),
+        list(
+          x = 0.225, 
+          y = 0.5, 
+          font = list(size = 16), 
+          showarrow = FALSE, 
+          text = "Universe Chain Saturation", 
+          xanchor = "center", 
+          xref = "paper", 
+          yanchor = "bottom", 
+          yref = "paper"
+        ),
+        list(
+          x = 0.775, 
+          y = 0.5, 
+          font = list(size = 16), 
+          showarrow = FALSE, 
+          text = "Query Chain Saturation", 
+          xanchor = "center", 
+          xref = "paper", 
+          yanchor = "bottom", 
+          yref = "paper"
+        )
+      ))
       #   grid.arrange(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"),intact.main.stack(queryMined()$intact)+ggtitle(" Main Query"),ncol=2)
       # plotly::ggplotly(grid.arrange(p1,p2,ncol=1))
+      }
+    }
+    else if (input$chooseplots == 3) {
+      
     }
   })
   # output$pie <- renderPlot({

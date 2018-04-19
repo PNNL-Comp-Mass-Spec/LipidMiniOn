@@ -12,6 +12,7 @@ library(plotly)
 
 # Define UI for application that draws a histogram
 shinyUI(#fluidPage(
+
   
   # App title ----
   # titlePanel("Lipid Mini-On: MINIng and ONtology"),
@@ -23,9 +24,10 @@ shinyUI(#fluidPage(
   navbarPage(title = div(img(src = "logoteal.png", height = 60, width = 145)),
              windowTitle = "Lipid Mini-On: MINIng and ONtology",
              theme = "yeti.css",
+
              
              ################## Upload Panel ##################
-             tabPanel("Upload",
+             tabPanel("Upload", 
                       sidebarLayout(
                         
                         sidebarPanel(
@@ -186,7 +188,7 @@ shinyUI(#fluidPage(
                         ),
                         
                         mainPanel(
-                          plotlyOutput("vizPlot")
+                          plotlyOutput("vizPlot", width = "700px", height = "700px")
                         )
                       )
              )
