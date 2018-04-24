@@ -196,6 +196,19 @@ tagList(
                       )
              ),
              tabPanel("Results Network"
+                      ),
+             tabPanel("About Mini-On",
+                      h4("Links"),
+                      p(HTML("<a href='https://scholar.google.com/schhp?hl=en'>Cite Us</a><br/><br/><a href='https://github.com/'>Github</a><br></br>")),
+                      h4("About Us"),
+                      p("Lipidomics is...")
+                      
+                      ),
+             tabPanel("Help",
+                      h4("Contact Us"),
+                      img(src="logoteal.pdf"),
+                      br(),
+                      h4(HTML("<a href='https://youtube.com'>YouTube</a>"))
                       )
   )
 )

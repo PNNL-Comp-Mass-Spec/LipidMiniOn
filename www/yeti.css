@@ -4278,9 +4278,9 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-brand {
   float: left;
   padding: 6px 11px;
-  font-size: 25px;
+  font-size: 23px;
   line-height: 21px;
-  height: 70px;
+  height: 46px;
 }
 .navbar-brand:hover,
 .navbar-brand:focus {
@@ -4330,7 +4330,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-nav > li > a {
   padding-top: 10px;
   padding-bottom: 10px;
-  line-height: 66px;
+  line-height: 48px;
 }
 @media (max-width: 767px) {
   .navbar-nav .open .dropdown-menu {
@@ -6756,7 +6756,7 @@ button.close {
 }
 .navbar {
   border: none;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 300;
 }
 .navbar .navbar-toggle:hover .icon-bar {
@@ -7074,10 +7074,14 @@ input[type="checkbox"] {
 .navbar li:nth-of-type(2n) { background-color: #336666; opacity: .5;}
 .navbar li:nth-of-type(3n) { background-color: #CC9933; opacity: .5;}
 .navbar li:nth-of-type(4n) { background-color: #990033; opacity: .5;}
+.navbar li:nth-of-type(5n) { background-color: #18aa8e; opacity: .5;}
+.navbar li:nth-of-type(6n) { background-color: #7f61d1; opacity: .5;}
 
 .navbar li.active { opacity: 1;}
 .navbar li.active:nth-of-type(2n) { opacity: 1;}
 .navbar li.active:nth-of-type(3n) { opacity: 1;}
 .navbar li.active:nth-of-type(4n) { opacity: 1;}
+.navbar li.active:nth-of-type(5n) { opacity: 1;}
+.navbar li.active:nth-of-type(6n) { opacity: 1;}
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover { background-color: initial;}
