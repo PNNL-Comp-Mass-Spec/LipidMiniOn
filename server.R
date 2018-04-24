@@ -252,7 +252,7 @@ shinyServer(function(session, input, output){
                row.names = c('Query',
                              'Universe'))
     
-  }, rownames = TRUE)
+  }, rownames = TRUE, align = 'c')
   
   
   #### Action Button Reactions ####
