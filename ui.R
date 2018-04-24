@@ -23,8 +23,8 @@ tagList(
   
   # Output: Tabset w/ Upload and Visualize (graph) tabs
 
-  navbarPage(title = div(img(src = "logoteal.png", height = 45, width = 45), "Lipid Mini-On: MINIng and ONtology"),
-             windowTitle = "Lipid Mini-On: MINIng and ONtology",
+  navbarPage(title = div(img(src = "logoteal.png", height = 85, width = 120), "Lipid Mini-On: Mining and Ontology"),
+             windowTitle = "Lipid Mini-On: Mining and Ontology",
              theme = "yeti.css",
              ################## Upload Panel ##################
              tabPanel("Upload", 

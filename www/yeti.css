@@ -4277,10 +4277,10 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-brand {
   float: left;
-  padding: 12px 15px;
-  font-size: 19px;
+  padding: 6px 11px;
+  font-size: 25px;
   line-height: 21px;
-  height: 45px;
+  height: 70px;
 }
 .navbar-brand:hover,
 .navbar-brand:focus {
@@ -4330,7 +4330,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-nav > li > a {
   padding-top: 10px;
   padding-bottom: 10px;
-  line-height: 21px;
+  line-height: 66px;
 }
 @media (max-width: 767px) {
   .navbar-nav .open .dropdown-menu {
@@ -6756,7 +6756,7 @@ button.close {
 }
 .navbar {
   border: none;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 300;
 }
 .navbar .navbar-toggle:hover .icon-bar {
@@ -7070,10 +7070,10 @@ input[type="checkbox"] {
 
 
  /* Sarah's stuff! */
-.navbar li { background-color: #336633; opacity: .3;}
-.navbar li:nth-of-type(2n) { background-color: #336666; opacity: .3;}
-.navbar li:nth-of-type(3n) { background-color: #CC9933; opacity: .3;}
-.navbar li:nth-of-type(4n) { background-color: #990033; opacity: .3;}
+.navbar li { background-color: #85ba2a; opacity: .5;}
+.navbar li:nth-of-type(2n) { background-color: #336666; opacity: .5;}
+.navbar li:nth-of-type(3n) { background-color: #CC9933; opacity: .5;}
+.navbar li:nth-of-type(4n) { background-color: #990033; opacity: .5;}
 
 .navbar li.active { opacity: 1;}
 .navbar li.active:nth-of-type(2n) { opacity: 1;}
