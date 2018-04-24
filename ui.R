@@ -54,6 +54,7 @@ tagList(
                           
                           ## Description of what the "Check Data" button does #
                           textOutput("CleaningDescription"),
+                          br(),
                           
                           ## Process data button (clean it) ##
                           actionButton('check_click', 'Check Data')

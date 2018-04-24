@@ -156,11 +156,11 @@ shinyServer(function(session, input, output){
     read.csv(filename, stringsAsFactors = FALSE)
   })
   
-  output$CleaningDescription = renderText({"Description of the data cleaning that happens when the user clicks the 'Check Data' button"})
+  output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   
   #### Main Panel ####
   
-  options(DT.options = list(pageLength = 5))
+  options(DT.options = list(pageLength = 15))
   
   
   ## Display Table and populate with number of lipids in Original (un-cleaned) datasets ##
@@ -328,7 +328,7 @@ shinyServer(function(session, input, output){
          You may proceed to the subsequent tabs for analysis.</h4>')
     }else{
       #HTML('<h4 style= "color:#1A5276"></h4>')
-      HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query file but not in the Universe file: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
+      HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query but not in the Universe: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
     }
     
     
@@ -352,7 +352,7 @@ shinyServer(function(session, input, output){
     if (is.null(queryDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadQueryClean", "Download Cleaned Query Data")
+      downloadButton("downloadQueryClean", "Download Passed Query Data")
     }
   })
   
@@ -372,7 +372,7 @@ shinyServer(function(session, input, output){
     if (is.null(universeDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadUniverseClean", "Download Cleaned Universe Data")
+      downloadButton("downloadUniverseClean", "Download Passed Universe Data")
     }
   })
   
