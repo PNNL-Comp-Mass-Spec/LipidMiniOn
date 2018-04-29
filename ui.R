@@ -90,11 +90,11 @@ tagList(
                           
                           ### Enrichment Test - dropdown ###
                           selectInput('dd_enrich_test', 'Enrichment test to use:',
-                                      choices = c("Please select a test" = "none", 
-                                                  "Fisher's exact test" = "Fisher",
+                                      choices = c("Fisher's exact (default)" = "Fisher",
                                                   "EASE score (DAVID)" = "EASE",
-                                                  "Binomial test" = "Binom",
-                                                  "Hypergeometric test" = "Hyper")
+                                                  "Binomial" = "Binom",
+                                                  "Hypergeometric" = "Hyper",
+                                                  selected = "Fisher's exact (default)")
                           ),
                           
                           
