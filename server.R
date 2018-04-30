@@ -457,10 +457,14 @@ shinyServer(function(session, input, output){
   
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
+    brks <- c(0.01, 0.05,0.05001)
+    clrs <- c("rgb(255,75,75)","rgb(255,200,200)", "rgb(255,255,255)", "rgb(255,255,255)")
+    
     datatable(global_results(),
               filter = 'top',  
               options = list(pageLength = 100, autoWidth = TRUE),
-              rownames= FALSE)
+              rownames= FALSE) %>%
+      formatStyle("Pvalue", backgroundColor = styleInterval(brks, clrs))
   })
   
   # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
