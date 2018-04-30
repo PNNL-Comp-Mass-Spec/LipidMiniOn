@@ -379,7 +379,22 @@ shinyServer(function(session, input, output){
   ####### Enrichment Analysis Tab #######
   output$tempplaceholder = renderText({"Summary of tests can go here"})
   output$pvalue_text = renderText({"P-value filter"})
-  
+  output$pval_ui <- renderUI({
+    if (input$cb_pval_filter) {
+      tagList(
+        selectInput("dd_pval_type", "",
+                    choices = c("Unadjusted p-value (default)", 
+                                "Adjusted p-value"
+                    )
+        ),
+        ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
+        textInput("ue_pval_thresh", "of", "0.05")
+      ) 
+    } else {
+      return(NULL)
+    }
+
+  })
   # # initialize the user input values? 
   # 
   # # Get user inputs #
@@ -437,12 +452,15 @@ shinyServer(function(session, input, output){
       need(input$dd_enrich_test != "none",
            'Please select an enrichment test to use.')
     )
-    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$cb_params_subclass, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
+    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
   })
   
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
-    global_results()
+    datatable(global_results(),
+              filter = 'top',  
+              options = list(pageLength = 100, autoWidth = TRUE),
+              rownames= FALSE)
   })
   
   # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY

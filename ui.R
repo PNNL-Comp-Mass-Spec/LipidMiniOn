@@ -93,9 +93,8 @@ tagList(
                                       choices = c("Fisher's exact (default)" = "Fisher",
                                                   "EASE score (DAVID)" = "EASE",
                                                   "Binomial" = "Binom",
-                                                  "Hypergeometric" = "Hyper",
-                                                  selected = "Fisher's exact (default)")
-                          ),
+                                                  "Hypergeometric" = "Hyper"),
+                                                  selected = "Fisher's exact (default)"),
                           
                           
                           
@@ -103,8 +102,8 @@ tagList(
                           checkboxGroupInput("cb_test_params", "General parameters to test",
                                              choices = c("Category" = "cat",
                                                          "Main class" = "main",
-                                                         "Sub-class" = "sub",
-                                                         "Individual chains (e.g. Fatty acids)" = "chains",
+                                                         "Subclass" = "sub",
+                                                         "Individual chains (e.g. fatty acids)" = "chains",
                                                          "Individual chain length and number of double bonds" = "length"),
                                              selected = c("cat", "main", "sub", "chains", "length")
                           ),
@@ -115,19 +114,19 @@ tagList(
                           ### Subset-specific Test - drop down ###
                           # (should be "none" by default but can be also "category", "mainclass", "subclass")
                           selectInput('dd_subset_id', 'Subset to test:',
-                                      choices = c("None", 
-                                                  "Category",
-                                                  "Main Class",
-                                                  "Sub Class"
+                                      choices = c("None (default)", 
+                                                  "Category" = "category",
+                                                  "Main Class" = "mainclass",
+                                                  "Subclass" = "subclass"
                                       )
                           ),
                           
                           
                           ### What to look at in the subset - checkbox group ###
                           checkboxGroupInput("cb_params_subclass", "Main class specific parameters",
-                                             choices = c("Total number of chain carbon within each class" = "total_carbon",
-                                                         "Total number of chain insaturations" = "total_insaturation",
-                                                         "Specific chains" = "specific_chains")
+                                             choices = c("Total number of chain carbon" = "total_carbon",
+                                                         "Total number of double bonds" = "total_insaturation",
+                                                         "Individual chains (e.g. fatty acids)" = "specific_chains")
                           ),
                           
                           
@@ -135,27 +134,14 @@ tagList(
                           
                           ### P-value Filter - checkbox ###
                           textOutput("pvalue_text"),
-                          checkboxInput("cb_pval_filter", "Implement a p-value filter by subsetting to lipids with a(n)",
+                          checkboxInput("cb_pval_filter", "Enrichment analysis with a p-value filter",
                                         value = FALSE),
-                          
                           ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
-                          selectInput("dd_pval_type", "",
-                                      choices = c("Unadjusted p-value", 
-                                                  "Adjusted p-value"
-                                      )
-                          ),
-                          
-                          ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
-                          textInput("ue_pval_thresh", "of", "0.05"),
-                          
-                          
-                          
+                          uiOutput("pval_ui"),
                           hr(),
                           
                           ### Process Data - button ###
                           actionButton("precheck_click", "Process Data")
-                          
-                          
                         ),
                         
                         
