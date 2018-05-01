@@ -378,7 +378,25 @@ shinyServer(function(session, input, output){
   })
   
   ####### Enrichment Analysis Tab #######
-  output$tempplaceholder = renderText({"Summary of tests can go here"})
+  output$tempplaceholder = renderText({
+    if(input$precheck_click == 0) {
+      return("Proceed with analysis by clicking the 'Process Data' button")
+    } else {
+      validate(
+        need(!is.null(global_results()), message = "Something went wrong calculating the results"))
+      if (is.null(input$ue_pval_thresh)) {
+        p <- 0.05
+      } else {
+        p <- input$ue_pval_thresh
+      }
+      return(paste(input$dd_enrich_test, " output table (",
+            sum(global_results()$Pvalue < p),
+            " pvals < ", p,
+            ")", sep = ""))
+    }
+
+   
+    })
   output$pvalue_text = renderText({"P-value filter"})
   output$pval_ui <- renderUI({
     if (input$cb_pval_filter) {
