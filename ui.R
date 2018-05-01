@@ -9,6 +9,7 @@
 
 library(shiny)
 library(plotly)
+library(visNetwork)
 
 # Define UI for application that draws a histogram
 tagList(
@@ -182,7 +183,8 @@ tagList(
                         )
                       )
              ),
-             tabPanel("Results Network"
+             tabPanel("Results Network",
+                      visNetworkOutput("network", width = "100%", height = "1700px")
                       ),
              tabPanel("About Mini-On",
                       h4("Links"),

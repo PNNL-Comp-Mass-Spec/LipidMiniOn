@@ -10,6 +10,7 @@
 
 #options(shiny.maxRequestSize=30*1024^2, ch.dir = TRUE) 
 library(shiny)
+library(visNetwork)
 library(rodin)
 library(DT)
 library(ggplot2)
@@ -356,7 +357,7 @@ shinyServer(function(session, input, output){
     }
   })
   
-
+  
   
   output$downloadUniverseClean <- downloadHandler(
     filename = function() {
@@ -393,7 +394,7 @@ shinyServer(function(session, input, output){
     } else {
       return(NULL)
     }
-
+    
   })
   # # initialize the user input values? 
   # 
@@ -402,33 +403,33 @@ shinyServer(function(session, input, output){
     req(input$dd_enrich_test)
     input$dd_enrich_test
   })
-
+  
   general_select <- reactive({
     req(input$cb_test_params)
     input$cb_test_params
   })
-
+  
   subset_by <- reactive({
     req(input$dd_subset_id)
     input$dd_subset_id
   })
-
+  
   subset_select <- reactive({
     req(input$cb_params_subclass)
     input$cb_params_subclass
   })
-
+  
   enrich_param <- reactive({
     req(input$cb_pval_filter)
     input$cb_pval_filter
   })
-
+  
   p_type <- reactive({
     req(input$dd_pval_type)
     input$dd_pval_type
   })
-
-
+  
+  
   p_value <- reactive({
     req(input$ue_pval_thresh)
     input$ue_pval_thresh
@@ -463,19 +464,19 @@ shinyServer(function(session, input, output){
     # 
     brks <- c(0.01, 0.01001)
     clrs <- c("bold","weight", "weight")
-     p <- datatable(display_table,
-                    filter = 'top',  
-                    options = list(pageLength = 100, autoWidth = TRUE),
-                    rownames= FALSE) %>%
-       formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
-                   fontWeight = styleInterval(brks, clrs)) %>%
-       formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
-       formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
-       formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
-                   fontWeight = styleInterval(0, c("weight", "bold")))
-     #backgroundColor = styleInterval(brks, clrs))
-  
-      return(p)
+    p <- datatable(display_table,
+                   filter = 'top',  
+                   options = list(pageLength = 100, autoWidth = TRUE),
+                   rownames= FALSE) %>%
+      formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+                  fontWeight = styleInterval(brks, clrs)) %>%
+      formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
+      formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
+      formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
+                  fontWeight = styleInterval(0, c("weight", "bold")))
+    #backgroundColor = styleInterval(brks, clrs))
+    
+    return(p)
     
   })
   
@@ -508,17 +509,17 @@ shinyServer(function(session, input, output){
     #-------- Classification Charts --------#
     if (input$chooseplots == 1) {
       return(tagList(
-      radioButtons(inputId = "type" ,label = "Type", 
-                         choices = c("Category", "Main Class", "Subclass"),
-                   selected = "Category"),
-      
-      checkboxInput(inputId = "pie1", label = "View as Pie Chart")
+        radioButtons(inputId = "type" ,label = "Type", 
+                     choices = c("Category", "Main Class", "Subclass"),
+                     selected = "Category"),
+        
+        checkboxInput(inputId = "pie1", label = "View as Pie Chart")
       )
       )
     }
     #-------- Chain Charts --------#
     if (input$chooseplots == 2) {
-       return(checkboxInput(inputId = "pie2", label = "View as Pie Chart"))
+      return(checkboxInput(inputId = "pie2", label = "View as Pie Chart"))
     }
     #-------- Subset Charts --------#
     if (input$chooseplots == 3) {
@@ -530,18 +531,18 @@ shinyServer(function(session, input, output){
   
   output$chain_subset <- renderUI({
     if (input$classification_type == "Category") {
-    selectInput(inputId = "subset_name", "Select a Chain", 
-                choices = queryMined()$intact$Category,
-                selected = queryMined()$intact$Category[1])
-  } else if (input$classification_type == "Main Class") {
-    selectInput(inputId = "subset_name", "Select a Chain", 
-                choices = queryMined()$intact$`Main class`,
-                selected = queryMined()$intact$`Main class`[1])
-  } else if (input$classification_type == "Subclass") {
-    selectInput(inputId = "subset_name", "Select a Chain", 
-                choices = queryMined()$intact$`Sub class`,
-                selected = queryMined()$intact$`Sub class`[1])
-  }
+      selectInput(inputId = "subset_name", "Select a Chain", 
+                  choices = queryMined()$intact$Category,
+                  selected = queryMined()$intact$Category[1])
+    } else if (input$classification_type == "Main Class") {
+      selectInput(inputId = "subset_name", "Select a Chain", 
+                  choices = queryMined()$intact$`Main class`,
+                  selected = queryMined()$intact$`Main class`[1])
+    } else if (input$classification_type == "Subclass") {
+      selectInput(inputId = "subset_name", "Select a Chain", 
+                  choices = queryMined()$intact$`Sub class`,
+                  selected = queryMined()$intact$`Sub class`[1])
+    }
   })
   
   output$vizPlot <- renderPlotly({
@@ -553,7 +554,7 @@ shinyServer(function(session, input, output){
       if (input$type == "Category") {
         if (input$pie1) {
           return(createCatPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
-                                 left_title = "Universe (Category)", right_title = "Query (Category)"))
+                                    left_title = "Universe (Category)", right_title = "Query (Category)"))
         } else {
           p1 <- ggplotly(intact.cat.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.cat.stack(queryMined()$intact), tooltip = 'tag') 
@@ -587,7 +588,7 @@ shinyServer(function(session, input, output){
       if (input$type == "Main Class") {
         if (input$pie1) {
           return(createMainPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
-                                 left_title = "Universe (Main Class)", right_title = "Query (Main Class)"))
+                                     left_title = "Universe (Main Class)", right_title = "Query (Main Class)"))
           
         } else {
           p1 <- ggplotly(intact.main.stack(universeMined()$intact), tooltip = 'tag') 
@@ -622,7 +623,7 @@ shinyServer(function(session, input, output){
       if (input$type == "Subclass") {
         if (input$pie1) {
           return(createSubPieCharts(pie_data1 = universeMined()$intact, pie_data2 =  queryMined()$intact,
-                                     left_title = "Universe (Sub Class)", right_title = "Query (Sub Class)"))
+                                    left_title = "Universe (Sub Class)", right_title = "Query (Sub Class)"))
         } else {
           p1 <- ggplotly(intact.sub.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.sub.stack(queryMined()$intact), tooltip = 'tag') 
@@ -655,16 +656,16 @@ shinyServer(function(session, input, output){
       }
       #----- make these charts plotly style ---------#
       
-     #  pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-     #          textposition = 'inside',
-     #          textinfo = 'label+percent')
-     #  pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-     #                 textposition = 'inside',
-     #                 textinfo = 'label+percent')
-     #  pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
-     #          textposition = 'inside',
-     #          textinfo = 'label+percent')
-     # subplot(pp1,pp2,pp3)
+      #  pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
+      #          textposition = 'inside',
+      #          textinfo = 'label+percent')
+      #  pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
+      #                 textposition = 'inside',
+      #                 textinfo = 'label+percent')
+      #  pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
+      #          textposition = 'inside',
+      #          textinfo = 'label+percent')
+      # subplot(pp1,pp2,pp3)
     }
     else if (input$chooseplots == 2) {
       # chains
@@ -752,80 +753,96 @@ shinyServer(function(session, input, output){
           ))
         return(pp)
       } else {
-      subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
-        list(
-          x = 0.225, 
-          y = 1.0, 
-          font = list(size = 16), 
-          showarrow = FALSE, 
-          text = "Universe Chain Length", 
-          xanchor = "center", 
-          xref = "paper", 
-          yanchor = "bottom", 
-          yref = "paper"
-        ),
-        list(
-          x = 0.775, 
-          y = 1.0, 
-          font = list(size = 16), 
-          showarrow = FALSE, 
-          text = "Query Chain Length", 
-          xanchor = "center", 
-          xref = "paper", 
-          yanchor = "bottom", 
-          yref = "paper"
-        ),
-        list(
-          x = 0.225, 
-          y = 0.45, 
-          font = list(size = 16), 
-          showarrow = FALSE, 
-          text = "Universe Chain Saturation", 
-          xanchor = "center", 
-          xref = "paper", 
-          yanchor = "bottom", 
-          yref = "paper"
-        ),
-        list(
-          x = 0.775, 
-          y = 0.45, 
-          font = list(size = 16), 
-          showarrow = FALSE, 
-          text = "Query Chain Saturation", 
-          xanchor = "center", 
-          xref = "paper", 
-          yanchor = "bottom", 
-          yref = "paper"
-        )
-      ))
-      #   grid.arrange(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"),intact.main.stack(queryMined()$intact)+ggtitle(" Main Query"),ncol=2)
-      # plotly::ggplotly(grid.arrange(p1,p2,ncol=1))
+        subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
+          list(
+            x = 0.225, 
+            y = 1.0, 
+            font = list(size = 16), 
+            showarrow = FALSE, 
+            text = "Universe Chain Length", 
+            xanchor = "center", 
+            xref = "paper", 
+            yanchor = "bottom", 
+            yref = "paper"
+          ),
+          list(
+            x = 0.775, 
+            y = 1.0, 
+            font = list(size = 16), 
+            showarrow = FALSE, 
+            text = "Query Chain Length", 
+            xanchor = "center", 
+            xref = "paper", 
+            yanchor = "bottom", 
+            yref = "paper"
+          ),
+          list(
+            x = 0.225, 
+            y = 0.45, 
+            font = list(size = 16), 
+            showarrow = FALSE, 
+            text = "Universe Chain Saturation", 
+            xanchor = "center", 
+            xref = "paper", 
+            yanchor = "bottom", 
+            yref = "paper"
+          ),
+          list(
+            x = 0.775, 
+            y = 0.45, 
+            font = list(size = 16), 
+            showarrow = FALSE, 
+            text = "Query Chain Saturation", 
+            xanchor = "center", 
+            xref = "paper", 
+            yanchor = "bottom", 
+            yref = "paper"
+          )
+        ))
+        #   grid.arrange(intact.main.stack(universeMined()$intact)+ggtitle("Main Universe"),intact.main.stack(queryMined()$intact)+ggtitle(" Main Query"),ncol=2)
+        # plotly::ggplotly(grid.arrange(p1,p2,ncol=1))
       }
     }
     else if (input$chooseplots == 3) {
-    if (input$classification_type == "Category") {
-      validate(need(input$subset_name != "", message = "Please select a subset chain"))
-      ggplotly(allchains.barplot(subsetcat(universeMined()$allchains, cat = input$subset_name),
-                        subsetcat(queryMined()$allchains, cat = input$subset_name))+
-                     ggtitle(paste("All chains of the category", input$subset_name))+
-                 theme_bw()+
-                 scale_fill_manual(values =c("grey","blue")))
-    } else if(input$classification_type == "Main Class") {
-      validate(need(input$subset_name != "", message = "Please select a subset chain"))
-      ggplotly(allchains.barplot(subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
-                                 subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
-                 ggtitle(paste("All chains of the category", input$subset_name))+
-                 theme_bw()+
-                 scale_fill_manual(values =c("grey","blue")))
-    } else if(input$classification_type == "Subclass") {
-      validate(need(input$subset_name != "", message = "Please select a subset chain"))
-      ggplotly(allchains.barplot(subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
-                                 subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
-               ggtitle(paste("All chains of the category", input$subset_name))+
-                 theme_bw()+
-                 scale_fill_manual(values =c("grey","blue")))
+      if (input$classification_type == "Category") {
+        validate(need(input$subset_name != "", message = "Please select a subset chain"))
+        ggplotly(allchains.barplot(subsetcat(universeMined()$allchains, cat = input$subset_name),
+                                   subsetcat(queryMined()$allchains, cat = input$subset_name))+
+                   ggtitle(paste("All chains of the category", input$subset_name))+
+                   theme_bw()+
+                   scale_fill_manual(values =c("grey","blue")))
+      } else if(input$classification_type == "Main Class") {
+        validate(need(input$subset_name != "", message = "Please select a subset chain"))
+        ggplotly(allchains.barplot(subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
+                                   subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
+                   ggtitle(paste("All chains of the category", input$subset_name))+
+                   theme_bw()+
+                   scale_fill_manual(values =c("grey","blue")))
+      } else if(input$classification_type == "Subclass") {
+        validate(need(input$subset_name != "", message = "Please select a subset chain"))
+        ggplotly(allchains.barplot(subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
+                                   subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
+                   ggtitle(paste("All chains of the category", input$subset_name))+
+                   theme_bw()+
+                   scale_fill_manual(values =c("grey","blue")))
+      }
     }
-    }
+  })
+  #------------------ Results Network ---------------#
+  
+  output$network <- renderVisNetwork({
+    lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+                                                                   lipid.miner(universeMined()$intact$Lipid, output.list = T),
+                                                                   test.type = "EASE", general.select = c(T,T,T,T,T),
+                                                                   subset.select = c(T,T,T),
+                                                                   enrich = F,subset.by = "category"),
+                        pval = 0.3)
+    colnames(network.nodes_attributes)<-c("label","title","color.background")
+    network.nodes_attributes2<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
+    network.nodes_attributes2$title<- network.nodes_attributes2$label
+    network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
+    return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
+    
   })
   # output$pie <- renderPlot({
   #   req(queryMined())
