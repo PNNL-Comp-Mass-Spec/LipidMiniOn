@@ -457,14 +457,26 @@ shinyServer(function(session, input, output){
   
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
-    brks <- c(0.01, 0.05,0.05001)
-    clrs <- c("rgb(255,75,75)","rgb(255,200,200)", "rgb(255,255,255)", "rgb(255,255,255)")
+    display_table <- isolate(global_results())
+    #test_display_name <- stringr::str_split(global_results()$Test.performed, pattern = "[(]")
+    display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
+    # 
+    brks <- c(0.01, 0.01001)
+    clrs <- c("bold","weight", "weight")
+     p <- datatable(display_table,
+                    filter = 'top',  
+                    options = list(pageLength = 100, autoWidth = TRUE),
+                    rownames= FALSE) %>%
+       formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+                   fontWeight = styleInterval(brks, clrs)) %>%
+       formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
+       formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
+       formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
+                   fontWeight = styleInterval(0, c("weight", "bold")))
+     #backgroundColor = styleInterval(brks, clrs))
+  
+      return(p)
     
-    datatable(global_results(),
-              filter = 'top',  
-              options = list(pageLength = 100, autoWidth = TRUE),
-              rownames= FALSE) %>%
-      formatStyle("Pvalue", backgroundColor = styleInterval(brks, clrs))
   })
   
   # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
