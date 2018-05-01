@@ -648,7 +648,7 @@ shinyServer(function(session, input, output){
           return(subplot(p1,p2) %>% layout(annotations = list(
             list(
               x = 0.225, 
-              y = 1.0, 
+              y = 0.97, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Universe (Subclass)", 
@@ -659,7 +659,7 @@ shinyServer(function(session, input, output){
             ),
             list(
               x = 0.775, 
-              y = 1.0, 
+              y = 0.97, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Query (Subclass)", 
@@ -706,12 +706,12 @@ shinyServer(function(session, input, output){
           add_pie(data = p1, labels = ~tag, values = ~percentage, 
                   textposition = 'inside',
                   textinfo = 'label',
-                  domain = list(x = c(0, 0.45), y = c(0.6, 1)),
+                  domain = list(x = c(0, 0.45), y = c(0.5, 0.9)),
                   marker = list(colors = p1$Color)) %>%
           add_pie(data = p2, labels = ~tag, values = ~percentage, 
                   textposition = 'inside',
                   textinfo = 'label',
-                  domain = list(x = c(0.55, 1), y = c(0.6, 1)),
+                  domain = list(x = c(0.55, 1), y = c(0.5, 0.9)),
                   marker = list(colors = p2$Color)) %>%
           add_pie(data = p3, labels = ~tag, values = ~percentage, 
                   textposition = 'inside',
@@ -726,7 +726,7 @@ shinyServer(function(session, input, output){
           layout(showlegend = FALSE, annotations = list(
             list(
               x = 0.225, 
-              y = 1.0, 
+              y = 0.93, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Universe Chain Length", 
@@ -737,7 +737,7 @@ shinyServer(function(session, input, output){
             ),
             list(
               x = 0.775, 
-              y = 1.0, 
+              y = 0.93, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Query Chain Length", 
@@ -748,7 +748,7 @@ shinyServer(function(session, input, output){
             ),
             list(
               x = 0.225, 
-              y = 0.45, 
+              y = 0.43, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Universe Chain Saturation", 
@@ -759,7 +759,7 @@ shinyServer(function(session, input, output){
             ),
             list(
               x = 0.775, 
-              y = 0.45, 
+              y = 0.43, 
               font = list(size = 16), 
               showarrow = FALSE, 
               text = "Query Chain Saturation", 
@@ -774,7 +774,7 @@ shinyServer(function(session, input, output){
         subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
           list(
             x = 0.225, 
-            y = 1.0, 
+            y = 0.99, 
             font = list(size = 16), 
             showarrow = FALSE, 
             text = "Universe Chain Length", 
@@ -785,7 +785,7 @@ shinyServer(function(session, input, output){
           ),
           list(
             x = 0.775, 
-            y = 1.0, 
+            y = 0.99, 
             font = list(size = 16), 
             showarrow = FALSE, 
             text = "Query Chain Length", 
@@ -796,7 +796,7 @@ shinyServer(function(session, input, output){
           ),
           list(
             x = 0.225, 
-            y = 0.45, 
+            y = 0.47, 
             font = list(size = 16), 
             showarrow = FALSE, 
             text = "Universe Chain Saturation", 
@@ -807,7 +807,7 @@ shinyServer(function(session, input, output){
           ),
           list(
             x = 0.775, 
-            y = 0.45, 
+            y = 0.47, 
             font = list(size = 16), 
             showarrow = FALSE, 
             text = "Query Chain Saturation", 
