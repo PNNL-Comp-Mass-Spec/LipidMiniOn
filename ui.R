@@ -169,7 +169,7 @@ tagList(
                           selectInput('chooseplots', 'I want to view',
                                       choices = c('Classifications' = 1,
                                                   'Fatty Acid Characteristics' = 2,
-                                                  'Specific Chains' = 3)
+                                                  'Specific Chains (e.g. fatty acids)' = 3)
                           ),
                           uiOutput("vizUI"),
                           conditionalPanel(condition = 'input.chooseplots == 3', {
