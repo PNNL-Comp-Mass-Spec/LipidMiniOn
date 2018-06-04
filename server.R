@@ -151,10 +151,18 @@ shinyServer(function(session, input, output){
   })
   
   # Get data from Universe File #
+  # universeData <- reactive({
+  #   req(input$universe$datapath)
+  #   filename <- input$universe$datapath
+  #   read.csv(filename, stringsAsFactors = FALSE)
+  # })
   universeData <- reactive({
-    req(input$universe$datapath)
-    filename <- input$universe$datapath
-    read.csv(filename, stringsAsFactors = FALSE)
+    if (is.null(input$universe)) {
+      return(NULL)
+    } else {
+    temp <- strsplit(input$universe, split = " ")[[1]]
+    data.frame(ID = temp, row.names = NULL)
+    }
   })
   
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
@@ -485,8 +493,10 @@ shinyServer(function(session, input, output){
     p <- datatable(display_table,
                    filter = 'top',  
                    options = list(pageLength = 100, autoWidth = TRUE),
-                   rownames= FALSE) %>%
+                   rownames = FALSE) %>%
       formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+                  fontWeight = styleInterval(brks, clrs)) %>%
+      formatStyle("BHadjustPvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
                   fontWeight = styleInterval(brks, clrs)) %>%
       formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
       formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%

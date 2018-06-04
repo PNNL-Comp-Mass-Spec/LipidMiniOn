@@ -45,11 +45,12 @@ tagList(
                           fluidRow(
                             column(width = 12,
                                    ## Load Universe file ##
-                                   fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
-                                             multiple = TRUE,
-                                             accept = c("text/csv",
-                                                        "text/comma-separated-values,text/plain",
-                                                        ".csv"))
+                                   # fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
+                                   #           multiple = TRUE,
+                                   #           accept = c("text/csv",
+                                   #                      "text/comma-separated-values,text/plain",
+                                   #                      ".csv"))
+                                   textInput("universe", "Upload 'Universe' Lipid Names")
                             )
                           ),
                           
