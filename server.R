@@ -479,8 +479,18 @@ shinyServer(function(session, input, output){
       need(input$dd_enrich_test != "none",
            'Please select an enrichment test to use.')
     )
-    run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
-  })
+    temp <- run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = FALSE)#input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
+  # for now, filter p-values outside of run the tests
+    if(input$cb_pval_filter) {
+      #figure out which filter to use
+      if( input$dd_pval_type == "Adjusted p-value"){
+        temp <- subset(temp, BHadjustPvalue <= input$ue_pval_thresh)
+      } else if ( input$dd_pval_type == "Unadjusted p-value (default)"){
+        temp <- subset(temp, Pvalue <= input$ue_pval_thresh)
+      }
+    }
+    return(temp)
+    })
   
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
