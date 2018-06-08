@@ -151,19 +151,19 @@ shinyServer(function(session, input, output){
   })
   
   # Get data from Universe File #
-  # universeData <- reactive({
-  #   req(input$universe$datapath)
-  #   filename <- input$universe$datapath
-  #   read.csv(filename, stringsAsFactors = FALSE)
-  # })
   universeData <- reactive({
-    if (is.null(input$universe)) {
-      return(NULL)
-    } else {
-    temp <- strsplit(input$universe, split = " ")[[1]]
-    data.frame(ID = temp, row.names = NULL)
-    }
+    req(input$universe$datapath)
+    filename <- input$universe$datapath
+    read.csv(filename, stringsAsFactors = FALSE)
   })
+  # universeData <- reactive({
+  #   if (is.null(input$universe)) {
+  #     return(NULL)
+  #   } else {
+  #   temp <- strsplit(input$universe, split = " ")[[1]]
+  #   data.frame(ID = temp, row.names = NULL)
+  #   }
+  # })
   
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   
@@ -867,14 +867,49 @@ shinyServer(function(session, input, output){
     }
   })
   #------------------ Results Network ---------------#
+  output$graph_pval_ui <- renderUI({
+    if (input$graph_pval_filter) {
+      tagList(
+        selectInput("graph_pval_type", "",
+                    choices = c("Unadjusted p-value (default)", 
+                                "Adjusted p-value"
+                    )
+        ),
+        ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
+        textInput(inputId = "graph_pval", label = "Select a value", value = 0.05)
+      ) 
+    } else {
+      return(NULL)
+    }
+    
+  })
   
   output$network <- renderVisNetwork({
-    lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-                                                                   lipid.miner(universeMined()$intact$Lipid, output.list = T),
-                                                                   test.type = "EASE", general.select = c(T,T,T,T,T),
-                                                                   subset.select = c(T,T,T),
-                                                                   enrich = F,subset.by = "category"),
-                        pval = 0.3)
+    if (input$graph_pval_filter) {
+      req(input$graph_pval_type)
+      if (input$graph_pval_type == "Unadjusted p-value (default)"){
+        lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+                                                                            lipid.miner(universeMined()$intact$Lipid, output.list = T),
+                                                                            test.type = "EASE", general.select = c(T,T,T,T,T),
+                                                                            subset.select = c(T,T,T),
+                                                                            enrich = F,subset.by = "category"),
+                            pval = as.numeric(input$graph_pval))
+      } else if (input$graph_pval_type == "Adjusted p-value"){
+        lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+                                                                            lipid.miner(universeMined()$intact$Lipid, output.list = T),
+                                                                            test.type = "EASE", general.select = c(T,T,T,T,T),
+                                                                            subset.select = c(T,T,T),
+                                                                            enrich = F,subset.by = "category"),
+                            adjpval = as.numeric(input$graph_pval))
+      }
+    } else {
+      lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+                                                                          lipid.miner(universeMined()$intact$Lipid, output.list = T),
+                                                                          test.type = "EASE", general.select = c(T,T,T,T,T),
+                                                                          subset.select = c(T,T,T),
+                                                                          enrich = F,subset.by = "category"))
+    }
+
     colnames(network.nodes_attributes)<-c("label","title","color.background")
     network.nodes_attributes2<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
     network.nodes_attributes2$title<- network.nodes_attributes2$label
