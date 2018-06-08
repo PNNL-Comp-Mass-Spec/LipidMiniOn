@@ -45,12 +45,12 @@ tagList(
                           fluidRow(
                             column(width = 12,
                                    ## Load Universe file ##
-                                   # fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
-                                   #           multiple = TRUE,
-                                   #           accept = c("text/csv",
-                                   #                      "text/comma-separated-values,text/plain",
-                                   #                      ".csv"))
-                                   textInput("universe", "Upload 'Universe' Lipid Names")
+                                   fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
+                                             multiple = TRUE,
+                                             accept = c("text/csv",
+                                                        "text/comma-separated-values,text/plain",
+                                                        ".csv"))
+                                   #textInput("universe", "Upload 'Universe' Lipid Names")
                             )
                           ),
                           
@@ -186,7 +186,15 @@ tagList(
                       )
              ),
              tabPanel("Results Network",
+                      sidebarLayout(
+                        sidebarPanel(
+                          checkboxInput("graph_pval_filter", label = "Check Box to Filter by P-Value", value = FALSE),
+                          uiOutput("graph_pval_ui")
+                        ),
+                        mainPanel( 
                       visNetworkOutput("network", width = "100%", height = "1700px")
+                      )
+                      )
                       ),
              tabPanel("About Mini-On",
                       h4("Links"),
