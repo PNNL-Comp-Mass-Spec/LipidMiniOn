@@ -518,6 +518,41 @@ shinyServer(function(session, input, output){
     
   })
   
+  output$downloadGlobalResultsUI <- renderUI({
+    if (is.null(global_results())) {
+      return(NULL)
+    } else {
+      downloadButton("downloadGlobalResults", "Download Results Table")
+    }
+  })
+  
+  table_name <- reactive({
+    validate(
+      need(!is.null(global_results()), message = "Something went wrong calculating the results"))
+    if (is.null(input$ue_pval_thresh)) {
+      p <- 0.05
+    } else {
+      p <- input$ue_pval_thresh
+    }
+    return(paste(input$dd_enrich_test, " output table (",
+                 sum(global_results()$Pvalue < p),
+                 " pvals < ", p,
+                 ")", sep = ""))
+  })
+  
+  output$downloadGlobalResults <- downloadHandler(
+    filename = function() {
+      paste(table_name(), ".csv", sep = "")
+    },
+    content = function(file) {
+      display_table <- isolate(global_results())
+      #test_display_name <- stringr::str_split(global_results()$Test.performed, pattern = "[(]")
+      display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
+      
+      write.csv(display_table, file, row.names = FALSE)
+    }
+  )
+  
   # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
   # output$param_check <- renderUI({
   #   req(test_type()) 

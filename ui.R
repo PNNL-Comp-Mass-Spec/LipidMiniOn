@@ -145,13 +145,16 @@ tagList(
                           
                           ### Process Data - button ###
                           actionButton("precheck_click", "Process Data")
+
                         ),
                         
                         
                         mainPanel(# Display globaloutput upon successful click of the "Process Data" button
                           width = 7, 
                           
-                          textOutput("tempplaceholder"),
+                          fluidRow(
+                            column(width = 5, textOutput("tempplaceholder")),
+                            column(width = 3, uiOutput("downloadGlobalResultsUI"))),
                           hr(),
                           
                           uiOutput("param_check"),
