@@ -1087,7 +1087,7 @@ html {
 }
 body {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.4;
   color: #222222;
   background-color: #ffffff;
@@ -2555,7 +2555,7 @@ output {
   width: 100%;
   height: 39px;
   padding: 8px 12px;
-  font-size: 15px;
+  font-size: 18px;
   line-height: 1.4;
   color: #6f6f6f;
   background-color: #ffffff;
@@ -6929,7 +6929,7 @@ label,
 .help-block,
 .checkbox,
 .radio {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: normal;
 }
 input[type="radio"],

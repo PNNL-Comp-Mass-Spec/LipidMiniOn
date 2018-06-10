@@ -136,7 +136,7 @@ tagList(
                           hr(),
                           
                           ### P-value Filter - checkbox ###
-                          h4(textOutput("pvalue_text")), 
+                          p(textOutput("pvalue_text")), 
                           checkboxInput("cb_pval_filter", "Enrichment analysis with a p-value filter",
                                         value = FALSE),
                           ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
