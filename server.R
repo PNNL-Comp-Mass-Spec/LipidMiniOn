@@ -139,6 +139,7 @@ createSubPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
 }
 
 shinyServer(function(session, input, output){
+  Sys.setenv(R_ZIPCMD="/usr/bin/zip")
   ######## Upload Tab ##############
   
   #### Sidebar Panel ####
@@ -597,13 +598,17 @@ shinyServer(function(session, input, output){
     #-------- Subset Charts --------#
     if (input$chooseplots == 3) {
       radioButtons(inputId = "classification_type" ,label = "Select a Classification Type", 
-                   choices = c("Category", "Main Class", "Subclass"),
-                   selected = "Category")
+                   choices = c("All Chains", "Category", "Main Class", "Subclass"),
+                   selected = "All Chains")
     }
   })
   
   output$chain_subset <- renderUI({
-    if (input$classification_type == "Category") {
+    req(input$classification_type)
+    if (input$classification_type == "All Chains") {
+      return(NULL)
+    }
+    else if (input$classification_type == "Category") {
       selectInput(inputId = "subset_name", "Select a Chain", 
                   choices = queryMined()$intact$Category,
                   selected = queryMined()$intact$Category[1])
@@ -877,7 +882,16 @@ shinyServer(function(session, input, output){
       }
     }
     else if (input$chooseplots == 3) {
-      if (input$classification_type == "Category") {
+      req(input$classification_type)
+      if (input$classification_type == "All Chains") {
+        ggplotly(allchains.barplot(Y = universeMined()$allchains,
+                                   X = queryMined()$allchains)+
+                   ggtitle(paste("All chains"))+
+                   theme_bw()+
+                   theme(axis.text.x = element_text(angle = 90))+
+                   scale_fill_manual(values =c("grey","blue")))
+      }
+      else if (input$classification_type == "Category") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
         ggplotly(allchains.barplot(Y = subsetcat(universeMined()$allchains, cat = input$subset_name),
                                    X = subsetcat(queryMined()$allchains, cat = input$subset_name))+
@@ -922,6 +936,38 @@ shinyServer(function(session, input, output){
     
   })
   
+  # the_network <- reactive({
+  #   if (input$graph_pval_filter) {
+  #     req(input$graph_pval_type)
+  #     if (input$graph_pval_type == "Unadjusted p-value (default)"){
+  #       lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+  #                                                                           lipid.miner(universeMined()$intact$Lipid, output.list = T),
+  #                                                                           test.type = "EASE", general.select = c(T,T,T,T,T),
+  #                                                                           subset.select = c(T,T,T),
+  #                                                                           enrich = F,subset.by = "category"),
+  #                           pval = as.numeric(input$graph_pval))
+  #     } else if (input$graph_pval_type == "Adjusted p-value"){
+  #       lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+  #                                                                           lipid.miner(universeMined()$intact$Lipid, output.list = T),
+  #                                                                           test.type = "EASE", general.select = c(T,T,T,T,T),
+  #                                                                           subset.select = c(T,T,T),
+  #                                                                           enrich = F,subset.by = "category"),
+  #                           adjpval = as.numeric(input$graph_pval))
+  #     }
+  #   } else {
+  #     lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
+  #                                                                         lipid.miner(universeMined()$intact$Lipid, output.list = T),
+  #                                                                         test.type = "EASE", general.select = c(T,T,T,T,T),
+  #                                                                         subset.select = c(T,T,T),
+  #                                                                         enrich = F,subset.by = "category"))
+  #   }
+  #   
+  #   colnames(network.nodes_attributes)<-c("label","title","color.background")
+  #   network.nodes_attributes2<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
+  #   network.nodes_attributes2$title<- network.nodes_attributes2$label
+  #   network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
+  #   return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
+  # })
   output$network <- renderVisNetwork({
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
@@ -949,11 +995,36 @@ shinyServer(function(session, input, output){
     }
 
     colnames(network.nodes_attributes)<-c("label","title","color.background")
-    network.nodes_attributes2<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
+    network.nodes_attributes2<<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
     network.nodes_attributes2$title<- network.nodes_attributes2$label
-    network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
+    network.edges_attributes2<<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
     return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
-    
+
+  })
+  
+  output$downloadNetwork <- downloadHandler(
+    filename = paste("Network_Output_",proc.time(),".zip", sep = ""),
+    content = function(fname) { #write a function to create the content populating said directory
+      fs <- vector()
+      tmpdir <- tempdir() # render the images in a temporary environment
+      setwd(tempdir())
+      print(tempdir())
+      fs <- c(fs, "Network_nodes.txt", "Network_edges.txt")
+      write.table(network.nodes_attributes2, file = "Network_nodes.txt")
+      write.table(network.edges_attributes2, file = "Network_edges.txt")
+      print(fs)
+      zip(zipfile=fname, files=fs)
+      if(file.exists(paste0(fname,".zip"))){file.rename(paste0(fname,".zip"),fname)}
+    },
+    contentType = "application/zip"
+  )
+  
+  output$downloadNetworkUI <- renderUI({
+    if (is.null(queryMined())) {
+      return(NULL)
+    } else {
+      downloadButton("downloadNetwork", "Download Network Nodes and Edges")
+    }
   })
   # output$pie <- renderPlot({
   #   req(queryMined())
