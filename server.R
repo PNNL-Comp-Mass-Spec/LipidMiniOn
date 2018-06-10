@@ -844,24 +844,27 @@ shinyServer(function(session, input, output){
     else if (input$chooseplots == 3) {
       if (input$classification_type == "Category") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
-        ggplotly(allchains.barplot(subsetcat(universeMined()$allchains, cat = input$subset_name),
-                                   subsetcat(queryMined()$allchains, cat = input$subset_name))+
+        ggplotly(allchains.barplot(Y = subsetcat(universeMined()$allchains, cat = input$subset_name),
+                                   X = subsetcat(queryMined()$allchains, cat = input$subset_name))+
                    ggtitle(paste("All chains of the category", input$subset_name))+
                    theme_bw()+
+                   theme(axis.text.x = element_text(angle = 90))+
                    scale_fill_manual(values =c("grey","blue")))
       } else if(input$classification_type == "Main Class") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
-        ggplotly(allchains.barplot(subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
-                                   subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
-                   ggtitle(paste("All chains of the category", input$subset_name))+
+        ggplotly(allchains.barplot(Y = subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
+                                   X = subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
+                   ggtitle(paste("All chains of the main class", input$subset_name))+
                    theme_bw()+
-                   scale_fill_manual(values =c("grey","blue")))
+                   theme(axis.text.x = element_text(angle = 90))+
+                   scale_fill_manual(values = c("grey","blue")))
       } else if(input$classification_type == "Subclass") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
-        ggplotly(allchains.barplot(subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
-                                   subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
-                   ggtitle(paste("All chains of the category", input$subset_name))+
+        ggplotly(allchains.barplot(Y = subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
+                                   X =subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
+                   ggtitle(paste("All chains of the subclass", input$subset_name))+
                    theme_bw()+
+                   theme(axis.text.x = element_text(angle = 90))+
                    scale_fill_manual(values =c("grey","blue")))
       }
     }

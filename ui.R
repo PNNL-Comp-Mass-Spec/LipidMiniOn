@@ -117,6 +117,7 @@ tagList(
                           # (should be "none" by default but can be also "category", "mainclass", "subclass")
                           selectInput('dd_subset_id', 'Subset to test:',
                                       choices = c("None (default)", 
+                                                  "All" = "length",
                                                   "Category" = "category",
                                                   "Main Class" = "mainclass",
                                                   "Subclass" = "subclass"
