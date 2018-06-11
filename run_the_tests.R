@@ -51,6 +51,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
       if (subset.by=="subclass"){
         sub_total_carbon_result<- total.carbon.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
       }
+      if (subset.by=="all"){
+        sub_total_carbon_result<- total.carbon.cat(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
+        sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.main(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
+        sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
+      }
     }
     #sub total DB
     if("total_insaturation" %in% subset.select){
@@ -63,6 +68,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
       if (subset.by=="subclass"){
         sub_total_DB_result<- total.DB.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
       }
+      if (subset.by=="all"){
+        sub_total_DB_result<- total.DB.cat(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
+        sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.main(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
+        sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
+      }
     }
     #sub allchains
     if("specific_chains" %in% subset.select){
@@ -74,6 +84,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
       }
       if (subset.by=="subclass"){
         sub_allchains_result<- allchains.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
+      }
+      if (subset.by=="all"){
+        sub_allchains_result<- allchains.cat(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval)
+        sub_allchains_result<- rbind(sub_allchains_result,allchains.main(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
+        sub_allchains_result<- rbind(sub_allchains_result,allchains.sub(Query.miner$intact,Universe.miner$intact, enrich=enrich,p=pval,adjp=adjpval))
       }
     }
   }else{
@@ -125,6 +140,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
         if (subset.by=="subclass"){
           sub_total_carbon_result<- total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "Binom",enrich=enrich,p=pval,adjp=adjpval)
         }
+        if (subset.by=="all"){
+         sub_total_carbon_result<- total.carbon.cat(Query.miner$intact,Universe.miner$intact, test= "Binom", enrich=enrich,p=pval,adjp=adjpval)
+         sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.main(Query.miner$intact,Universe.miner$intact, test= "Binom",enrich=enrich,p=pval,adjp=adjpval))
+         sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "Binom",enrich=enrich,p=pval,adjp=adjpval))
+        }
       }
       #sub total DB
       if("total_insaturation" %in% subset.select){
@@ -137,6 +157,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
         if (subset.by == "subclass"){
           sub_total_DB_result <- total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "Binom",enrich=enrich,p=pval,adjp=adjpval)
         }
+        if (subset.by=="all"){
+          sub_total_DB_result<- total.DB.cat(Query.miner$intact,Universe.miner$intact, test= "Binom", enrich=enrich,p=pval,adjp=adjpval)
+          sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.main(Query.miner$intact,Universe.miner$intact, test= "Binom", enrich=enrich,p=pval,adjp=adjpval))
+          sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "Binom", enrich=enrich,p=pval,adjp=adjpval))
+        }
       }
       #sub allchains
       if("specific_chains" %in% subset.select){
@@ -148,6 +173,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
         }
         if (subset.by=="subclass"){
           sub_allchains_result<- allchains.sub(Query.miner$intact,Universe.miner$intact, test= "Binom",enrich=enrich,p=pval,adjp=adjpval)
+        }
+        if (subset.by=="all"){
+          sub_allchains_result<- allchains.cat(Query.miner$intact,Universe.miner$intact,  test= "Binom",enrich=enrich,p=pval,adjp=adjpval)
+          sub_allchains_result<- rbind(sub_allchains_result,allchains.main(Query.miner$intact,Universe.miner$intact,  test= "Binom",enrich=enrich,p=pval,adjp=adjpval))
+          sub_allchains_result<- rbind(sub_allchains_result,allchains.sub(Query.miner$intact,Universe.miner$intact,  test= "Binom",enrich=enrich,p=pval,adjp=adjpval))
         }
       }
     }else{
@@ -199,6 +229,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
           if (subset.by=="subclass"){
             sub_total_carbon_result<- total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "Hyper",enrich=enrich,p=pval,adjp=adjpval)
           }
+          if (subset.by=="all"){
+           sub_total_carbon_result<- total.carbon.cat(Query.miner$intact,Universe.miner$intact, test= "Hyper", enrich=enrich,p=pval,adjp=adjpval)
+           sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.main(Query.miner$intact,Universe.miner$intact, test= "Hyper",enrich=enrich,p=pval,adjp=adjpval))
+           sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "Hyper",enrich=enrich,p=pval,adjp=adjpval))
+          }
         }
         #sub total DB
         if("total_insaturation" %in% subset.select){
@@ -211,6 +246,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
           if (subset.by=="subclass"){
             sub_total_DB_result<- total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "Hyper",enrich=enrich,p=pval,adjp=adjpval)
           }
+          if (subset.by=="all"){
+            sub_total_DB_result<- total.DB.cat(Query.miner$intact,Universe.miner$intact, test= "Hyper", enrich=enrich,p=pval,adjp=adjpval)
+            sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.main(Query.miner$intact,Universe.miner$intact, test= "Hyper", enrich=enrich,p=pval,adjp=adjpval))
+            sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "Hyper", enrich=enrich,p=pval,adjp=adjpval))
+          }
         }
         #sub allchains
         if("specific_chains" %in% subset.select){
@@ -222,6 +262,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
           }
           if (subset.by=="subclass"){
             sub_allchains_result<- allchains.sub(Query.miner$intact,Universe.miner$intact, test= "Hyper",enrich=enrich,p=pval,adjp=adjpval)
+          }
+          if (subset.by=="all"){
+            sub_allchains_result<- allchains.cat(Query.miner$intact,Universe.miner$intact,  test= "Hyper",enrich=enrich,p=pval,adjp=adjpval)
+            sub_allchains_result<- rbind(sub_allchains_result,allchains.main(Query.miner$intact,Universe.miner$intact,  test= "Hyper",enrich=enrich,p=pval,adjp=adjpval))
+            sub_allchains_result<- rbind(sub_allchains_result,allchains.sub(Query.miner$intact,Universe.miner$intact,  test= "Hyper",enrich=enrich,p=pval,adjp=adjpval))
           }
         }
       }else{
@@ -273,6 +318,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
             if (subset.by=="subclass"){
               sub_total_carbon_result<- total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "EASE",enrich=enrich,p=pval,adjp=adjpval)
             }
+            if (subset.by=="all"){
+             sub_total_carbon_result<- total.carbon.cat(Query.miner$intact,Universe.miner$intact, test= "EASE", enrich=enrich,p=pval,adjp=adjpval)
+             sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.main(Query.miner$intact,Universe.miner$intact, test= "EASE",enrich=enrich,p=pval,adjp=adjpval))
+             sub_total_carbon_result<- rbind(sub_total_carbon_result,total.carbon.sub(Query.miner$intact,Universe.miner$intact, test= "EASE",enrich=enrich,p=pval,adjp=adjpval))
+            }
           }
           #sub total DB
           if("total_insaturation" %in% subset.select){
@@ -285,6 +335,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
             if (subset.by=="subclass"){
               sub_total_DB_result<- total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "EASE",enrich=enrich,p=pval,adjp=adjpval)
             }
+            if (subset.by=="all"){
+              sub_total_DB_result<- total.DB.cat(Query.miner$intact,Universe.miner$intact, test= "EASE", enrich=enrich,p=pval,adjp=adjpval)
+              sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.main(Query.miner$intact,Universe.miner$intact, test= "EASE", enrich=enrich,p=pval,adjp=adjpval))
+              sub_total_DB_result<- rbind(sub_total_DB_result,total.DB.sub(Query.miner$intact,Universe.miner$intact, test= "EASE", enrich=enrich,p=pval,adjp=adjpval))
+            }
           }
           #sub allchains
           if("specific_chains" %in% subset.select){
@@ -296,6 +351,11 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
             }
             if (subset.by=="subclass"){
               sub_allchains_result<- allchains.sub(Query.miner$intact,Universe.miner$intact, test= "EASE",enrich=enrich,p=pval,adjp=adjpval)
+            }
+            if (subset.by=="all"){
+              sub_allchains_result<- allchains.cat(Query.miner$intact,Universe.miner$intact,  test= "EASE",enrich=enrich,p=pval,adjp=adjpval)
+              sub_allchains_result<- rbind(sub_allchains_result,allchains.main(Query.miner$intact,Universe.miner$intact,  test= "EASE",enrich=enrich,p=pval,adjp=adjpval))
+              sub_allchains_result<- rbind(sub_allchains_result,allchains.sub(Query.miner$intact,Universe.miner$intact,  test= "EASE",enrich=enrich,p=pval,adjp=adjpval))
             }
           }
         }
@@ -371,7 +431,7 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
   
   if(!is.null(sub_total_carbon_result)){
     if(nrow(sub_total_carbon_result) != 0){
-    title.enrich<- paste("Total chain carbon by ",subset.by,"(",test.type,")",sep="")
+    title.enrich<- paste("Total chain carbon within subset group(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
@@ -382,7 +442,7 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
   
   if(!is.null(sub_total_DB_result)){
     if(nrow(sub_total_DB_result) != 0){
-    title.enrich<- paste("Total number of DB by ",subset.by,"(",test.type,")",sep="")
+    title.enrich<- paste("Total number of DB within subset group(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
@@ -393,7 +453,7 @@ run_the_tests <- function(Query.miner, Universe.miner, test.type, general.select
   
   if(!is.null(sub_allchains_result)){
     if(nrow(sub_allchains_result) != 0){
-    title.enrich<- paste("Specific chains by ",subset.by,"(",test.type,")",sep="")
+    title.enrich<- paste("Specific chains within subset group(",test.type,")",sep="")
     #display title
     title.enrich
     #display this on the right panel
