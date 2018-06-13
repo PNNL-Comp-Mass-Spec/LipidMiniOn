@@ -38,7 +38,7 @@ tagList(
                                      br(),
                                      fluidRow(
                                        column(width = 12,
-                                              fileInput("query", "Upload 'Query' Lipid Names (.csv)",
+                                              fileInput("query", tags$b("Upload 'Query' Lipid Names (.csv)"),
                                                         multiple = TRUE,
                                                         accept = c("text/csv",
                                                                    "text/comma-separated-values,text/plain",
@@ -48,7 +48,7 @@ tagList(
                                      fluidRow(
                                        column(width = 12,
                                               ## Load Universe file ##
-                                              fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
+                                              fileInput("universe", tags$b("Upload 'Universe' Lipid Names (.csv)"),
                                                         multiple = TRUE,
                                                         accept = c("text/csv",
                                                                    "text/comma-separated-values,text/plain",
@@ -68,14 +68,14 @@ tagList(
                                      ## Load Query file ##
                                      fluidRow(
                                        column(width = 12,
-                                              textAreaInput("query_text", "Enter 'Query' Lipid Names"
+                                              textAreaInput("query_text", tags$b("Enter 'Query' Lipid Names")
                                                             )
                                        )
                                      ), 
                                      fluidRow(
                                        column(width = 12,
                                               ## Load Universe file ##
-                                              textAreaInput("universe_text", "Enter 'Universe' Lipid Names")
+                                              textAreaInput("universe_text", tags$b("Enter 'Universe' Lipid Names"))
                                               #textInput("universe", "Upload 'Universe' Lipid Names")
                                        )
                                      ),
@@ -146,7 +146,7 @@ tagList(
                         sidebarPanel(
                           
                           ### Enrichment Test - dropdown ###
-                          selectInput('dd_enrich_test', 'Enrichment test to use:',
+                          selectInput('dd_enrich_test', tags$b('Enrichment test to use:'),
                                       choices = c("Fisher's exact (default)" = "Fisher",
                                                   "EASE score (DAVID)" = "EASE",
                                                   "Binomial" = "Binom",
@@ -156,7 +156,7 @@ tagList(
                           
                           
                           ### General Parameters to Test - checkbox group ###
-                          checkboxGroupInput("cb_test_params", "General parameters to test",
+                          checkboxGroupInput("cb_test_params", tags$b("General parameters to test"),
                                              choices = c("Category" = "cat",
                                                          "Main class" = "main",
                                                          "Subclass" = "sub",
@@ -170,7 +170,7 @@ tagList(
                           
                           ### Subset-specific Test - drop down ###
                           # (should be "none" by default but can be also "category", "mainclass", "subclass")
-                          selectInput('dd_subset_id', 'Subset to test:',
+                          selectInput('dd_subset_id', tags$b('Subset to test:'),
                                       choices = c("None (default)", 
                                                   "All" = "all",
                                                   "Category" = "category",
@@ -181,7 +181,7 @@ tagList(
                           
                           
                           ### What to look at in the subset - checkbox group ###
-                          checkboxGroupInput("cb_params_subclass", "Main class specific parameters",
+                          checkboxGroupInput("cb_params_subclass", tags$b("Main class specific parameters"),
                                              choices = c("Total number of chain carbon" = "total_carbon",
                                                          "Total number of double bonds" = "total_insaturation",
                                                          "Individual chains (e.g. fatty acids)" = "specific_chains")
@@ -191,7 +191,7 @@ tagList(
                           hr(),
                           
                           ### P-value Filter - checkbox ###
-                          p(textOutput("pvalue_text")), 
+                          tags$b(p(textOutput("pvalue_text"))), 
                           checkboxInput("cb_pval_filter", "Enrichment analysis with a p-value filter",
                                         value = FALSE),
                           ### Unadjusted or Adjusted? - dropdown ### 3. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
@@ -228,7 +228,7 @@ tagList(
                       sidebarLayout(
                         sidebarPanel(
                           
-                          selectInput('chooseplots', 'I want to view',
+                          selectInput('chooseplots', tags$b('I want to view'),
                                       choices = c('Classifications' = 1,
                                                   'Fatty Acid Characteristics' = 2,
                                                   'Specific Chains (e.g. fatty acids)' = 3)
@@ -247,7 +247,7 @@ tagList(
              tabPanel("Results Network",
                       sidebarLayout(
                         sidebarPanel(
-                          checkboxInput("graph_pval_filter", label = "Check Box to Filter by P-Value", value = FALSE),
+                          checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = FALSE),
                           uiOutput("graph_pval_ui"),
                           uiOutput("downloadNetworkUI")
                         ),
