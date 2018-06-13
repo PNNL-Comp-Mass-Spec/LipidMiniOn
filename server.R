@@ -139,7 +139,7 @@ createSubPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
 }
 
 shinyServer(function(session, input, output){
-  Sys.setenv(R_ZIPCMD="/usr/bin/zip")
+  #Sys.setenv(R_ZIPCMD="/usr/bin/zip")
   ######## Upload Tab ##############
   
   #### Sidebar Panel ####
@@ -395,7 +395,7 @@ shinyServer(function(session, input, output){
     },
     content = function(file) {
       query = queryDataClean()
-      write.table(query, file, row.names = FALSE)
+      write.table(query, file, row.names = FALSE, sep = "\t")
     }
   )
   
@@ -415,7 +415,7 @@ shinyServer(function(session, input, output){
     },
     content = function(file) {
       universe = universeDataClean()
-      write.table(universe, file, row.names = FALSE)
+      write.table(universe, file, row.names = FALSE, sep = "\t")
     }
   )
   
@@ -650,15 +650,15 @@ shinyServer(function(session, input, output){
       return(NULL)
     }
     else if (input$classification_type == "Category") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$Category,
                   selected = queryMined()$intact$Category[1])
     } else if (input$classification_type == "Main Class") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$`Main class`,
                   selected = queryMined()$intact$`Main class`[1])
     } else if (input$classification_type == "Subclass") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$`Sub class`,
                   selected = queryMined()$intact$`Sub class`[1])
     }
@@ -712,7 +712,7 @@ shinyServer(function(session, input, output){
         } else {
           p1 <- ggplotly(intact.main.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.main.stack(queryMined()$intact), tooltip = 'tag') 
-          return(subplot(p1,p2) %>% layout(annotations = list(
+          return(subplot(p1,p2) %>% layout(showlegend = FALSE, annotations = list(
             list(
               x = 0.225, 
               y = 1.0, 
@@ -746,7 +746,7 @@ shinyServer(function(session, input, output){
         } else {
           p1 <- ggplotly(intact.sub.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.sub.stack(queryMined()$intact), tooltip = 'tag') 
-          return(subplot(p1,p2) %>% layout(annotations = list(
+          return(subplot(p1,p2) %>% layout(showlegend = FALSE, annotations = list(
             list(
               x = 0.225, 
               y = 0.97, 
@@ -872,7 +872,7 @@ shinyServer(function(session, input, output){
           ))
         return(pp)
       } else {
-        subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
+        subplot(p1,p2,p3,p4, nrows = 2) %>% layout(showlegend = FALSE, annotations = list(
           list(
             x = 0.225, 
             y = 0.99, 
@@ -1060,6 +1060,7 @@ shinyServer(function(session, input, output){
     contentType = "application/zip"
   )
   
+  # do not zip these, three buttons for three tsv
   output$downloadNetworkUI <- renderUI({
     if (is.null(queryMined())) {
       return(NULL)
