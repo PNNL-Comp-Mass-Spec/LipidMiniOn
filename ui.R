@@ -249,7 +249,15 @@ tagList(
                         sidebarPanel(
                           checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = FALSE),
                           uiOutput("graph_pval_ui"),
-                          uiOutput("downloadNetworkUI")
+                          fluidRow(
+                            column(width = 6,
+                              uiOutput("downloadNetworkNodesUI")
+                            ),
+                            column(width = 6,
+                                   uiOutput("downloadNetworkEdgesUI")
+                                   )
+                          )
+                         
                         ),
                         mainPanel( 
                       visNetworkOutput("network", width = "100%", height = "1700px")

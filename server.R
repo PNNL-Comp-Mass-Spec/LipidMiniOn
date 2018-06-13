@@ -389,7 +389,7 @@ shinyServer(function(session, input, output){
     
   })
   
-  output$downloadQueryClean <- downloadHandler(
+  output$QueryClean.txt <- downloadHandler(
     filename = function() {
       paste("Query_Data_Cleaned", ".txt", sep = "")
     },
@@ -403,13 +403,13 @@ shinyServer(function(session, input, output){
     if (is.null(queryDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadQueryClean", "Download Passed Query Data")
+      downloadButton(outputId = "QueryClean.txt", "Download Passed Query Data")
     }
   })
   
   
   
-  output$downloadUniverseClean <- downloadHandler(
+  output$UniverseClean.txt <- downloadHandler(
     filename = function() {
       paste("Universe_Data_Cleaned", ".txt", sep = "")
     },
@@ -423,7 +423,7 @@ shinyServer(function(session, input, output){
     if (is.null(universeDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadUniverseClean", "Download Passed Universe Data")
+      downloadButton(outputId = "UniverseClean.txt", "Download Passed Universe Data")
     }
   })
   
@@ -624,7 +624,7 @@ shinyServer(function(session, input, output){
     #-------- Classification Charts --------#
     if (input$chooseplots == 1) {
       return(tagList(
-        radioButtons(inputId = "type" ,label = "Type", 
+        radioButtons(inputId = "type" ,label = tags$b("Type"), 
                      choices = c("Category", "Main Class", "Subclass"),
                      selected = "Category"),
         
@@ -638,7 +638,7 @@ shinyServer(function(session, input, output){
     }
     #-------- Subset Charts --------#
     if (input$chooseplots == 3) {
-      radioButtons(inputId = "classification_type" ,label = "Select a Classification Type", 
+      radioButtons(inputId = "classification_type" ,label = tags$b("Select a Classification Type"), 
                    choices = c("All Chains", "Category", "Main Class", "Subclass"),
                    selected = "All Chains")
     }
@@ -969,7 +969,7 @@ shinyServer(function(session, input, output){
                     )
         ),
         ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
-        textInput(inputId = "graph_pval", label = "Select a value", value = 0.05)
+        textInput(inputId = "graph_pval", label = tags$b("Select a value"), value = 0.05)
       ) 
     } else {
       return(NULL)
@@ -1009,7 +1009,7 @@ shinyServer(function(session, input, output){
   #   network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
   #   return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
   # })
-  output$network <- renderVisNetwork({
+  network_components <- reactive({
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
       if (input$graph_pval_type == "Unadjusted p-value (default)"){
@@ -1034,44 +1034,53 @@ shinyServer(function(session, input, output){
                                                                           subset.select = c(T,T,T),
                                                                           enrich = F,subset.by = "category"))
     }
-
-    colnames(network.nodes_attributes)<-c("label","title","color.background")
-    network.nodes_attributes2<<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
-    network.nodes_attributes2$title<- network.nodes_attributes2$label
-    network.edges_attributes2<<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
-    return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
+    
+    colnames(network.nodes_attributes) <- c("label","title","color.background")
+    network.nodes_attributes2 <- cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
+    network.nodes_attributes2$title <- network.nodes_attributes2$label
+    network.edges_attributes2 <- data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
+    return(list(Nodes = network.nodes_attributes2, Edges = network.edges_attributes2))
+  })
+  output$network <- renderVisNetwork({
+       return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "1700px") %>%
+                visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
 
   })
   
-  output$downloadNetwork <- downloadHandler(
-    filename = paste("Network_Output_",proc.time(),".zip", sep = ""),
-    content = function(fname) { #write a function to create the content populating said directory
-      fs <- vector()
-      tmpdir <- tempdir() # render the images in a temporary environment
-      setwd(tempdir())
-      print(tempdir())
-      fs <- c(fs, "Network_nodes.txt", "Network_edges.txt")
-      write.table(network.nodes_attributes2, file = "Network_nodes.txt")
-      write.table(network.edges_attributes2, file = "Network_edges.txt")
-      print(fs)
-      zip(zipfile=fname, files=fs)
-      if(file.exists(paste0(fname,".zip"))){file.rename(paste0(fname,".zip"),fname)}
+  output$downloadNetworkNodes <- downloadHandler(
+    filename = function() {
+      paste("Network_nodes", ".txt", sep = "")
     },
-    contentType = "application/zip"
+    content = function(file) {
+      temp <- network_components()$Nodes
+      write.table(temp, file, sep = "\t")
+    }
   )
-  
-  # do not zip these, three buttons for three tsv
-  output$downloadNetworkUI <- renderUI({
+
+  output$downloadNetworkNodesUI <- renderUI({
     if (is.null(queryMined())) {
       return(NULL)
     } else {
-      downloadButton("downloadNetwork", "Download Network Nodes and Edges")
+      downloadButton(outputId = "NetworkNodes.txt", "Download Network Nodes")
     }
   })
-  # output$pie <- renderPlot({
-  #   req(queryMined())
-  #   chain.pieCat(queryMined()$chain)
-  # })
-  # 
   
+  output$NetworkEdges.txt <- downloadHandler(
+    filename = function() {
+      paste("Network_edges", ".txt", sep = "")
+    },
+    content = function(file) {
+      temp <- network_components()$Edges
+      write.table(temp, file, sep = "\t")
+    }
+  )
+  # do not zip these, three buttons for three tsv
+  output$NetworkEdges.txt <- renderUI({
+    if (is.null(queryMined())) {
+      return(NULL)
+    } else {
+      downloadButton(outputId = "NetworkEdges.txt", "Download Network Edges")
+    }
+  })
+
 })
