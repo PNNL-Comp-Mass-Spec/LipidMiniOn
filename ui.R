@@ -226,7 +226,7 @@ tagList(
              tabPanel("Results Network",
                       sidebarLayout(
                         sidebarPanel(
-                          checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = FALSE),
+                          checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = TRUE),
                           uiOutput("graph_pval_ui"),
                           fluidRow(
                             column(width = 6,
