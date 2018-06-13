@@ -231,8 +231,8 @@ shinyServer(function(session, input, output){
   output$summary_data <- renderTable({
     #input$query
     #input$universe
-     req(universeDataClean())
-     req(queryDataClean())
+     # req(universeDataClean())
+     # req(queryDataClean())
      #req(cleanResultsUniverse())
      #req(cleanResultsQuery())
     
@@ -365,6 +365,7 @@ shinyServer(function(session, input, output){
   
   ## Display success message if everything is loaded correctly ##
   output$process_success <- renderUI({
+
     req(universeDataClean()) 
     req(queryDataClean())
     req(universeMined())
@@ -381,12 +382,6 @@ shinyServer(function(session, input, output){
       #HTML('<h4 style= "color:#1A5276"></h4>')
       HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query but not in the Universe: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
     }
-    
-    
-    
-    
-    # ## Download option for cleaned data ## 2. THESE BUTTONS SHOULD ONLY BE AVAILABLE ONCE THE DATA HAS BEEN SUCCESSFULLY CLEANED
-    
   })
   
   output$QueryClean.txt <- downloadHandler(

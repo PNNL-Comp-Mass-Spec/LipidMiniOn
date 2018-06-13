@@ -86,47 +86,26 @@ tagList(
                                      ## Process data button (clean it) ##
                                      actionButton('check_click1', 'Check Data')
                             ))
-                          
-                          # ## Load Query file ##
-                          # fluidRow(
-                          #   column(width = 12,
-                          #          fileInput("query", "Upload 'Query' Lipid Names (.csv)",
-                          #                    multiple = TRUE,
-                          #                    accept = c("text/csv",
-                          #                               "text/comma-separated-values,text/plain",
-                          #                               ".csv"))
-                          #   )
-                          # ), 
-                          # fluidRow(
-                          #   column(width = 12,
-                          #          ## Load Universe file ##
-                          #          fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
-                          #                    multiple = TRUE,
-                          #                    accept = c("text/csv",
-                          #                               "text/comma-separated-values,text/plain",
-                          #                               ".csv"))
-                          #          #textInput("universe", "Upload 'Universe' Lipid Names")
-                          #   )
-                          # ),
-                          
-                          # ## Description of what the "Check Data" button does #
-                          # textOutput("CleaningDescription"),
-                          # br(),
-                          # 
-                          # ## Process data button (clean it) ##
-                          # actionButton('check_click', 'Check Data')
                         ), 
                         
                         ## Main Panel ##
                         mainPanel(
                           width = 8,
-                          uiOutput("process_success"),
-                          
+
                           # Summary table giving number lipids # 1. HAVING TROUBLE WITH THE REACTIVITY HERE (SEE THE SERVER FILE FOR A NOTE ON WHAT I'M TRYING TO DO), ALSO GETTING ERROR ABOUT SUBSETTING...
-                          wellPanel(
-                            width = 6,
+                          
+                            conditionalPanel(condition = 'input.check_click == 0 & input.check_click1 == 0',{
+                              img(src="logoteal.pdf")
+                            }),
+                          conditionalPanel(condition = 'input.check_click > 0 | input.check_click1 > 0',{
+                            uiOutput("process_success")
+                          }),
+                        conditionalPanel(condition = 'input.check_click > 0 | input.check_click1 > 0',{
+                        wellPanel(
+                          width = 6,
                             tableOutput('summary_data')
-                          ),
+                        )
+                        }),
                           # Download the cleaned data (.txt files) # 2. THESE BUTTONS SHOULD ONLY APPEAR OR BECOME ACTIVE ONCE THE DATA HAS BEEN PROCESSED SUCCESSFULLY VIA THE "CHECK DATA" BUTTON
                           fluidRow(
                             column(width = 4,
