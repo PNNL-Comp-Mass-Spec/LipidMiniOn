@@ -146,16 +146,27 @@ shinyServer(function(session, input, output){
   
   # Get data from Query File #
   queryData <- reactive({
-    req(input$query$datapath)
-    filename <- input$query$datapath
-    read.csv(filename, stringsAsFactors = FALSE)
+    if(!is.null(input$query$datapath)){
+      filename <- input$query$datapath
+      return(read.csv(filename, stringsAsFactors = FALSE)) 
+    } else if (input$query_text != "")
+    req(input$query_text)
+    temp <- strsplit(input$query_text, split = " ")[[1]]
+    return(data.frame(ID = temp, row.names = NULL))
   })
   
   # Get data from Universe File #
   universeData <- reactive({
-    req(input$universe$datapath)
-    filename <- input$universe$datapath
-    read.csv(filename, stringsAsFactors = FALSE)
+    if(!is.null(input$universe$datapath)){
+      req(input$universe$datapath)
+      filename <- input$universe$datapath
+      return(read.csv(filename, stringsAsFactors = FALSE) )
+    } else if (input$universe_text != ""){
+      req(input$universe_text)
+      temp <- strsplit(input$universe_text, split = " ")[[1]]
+      return(data.frame(ID = temp, row.names = NULL))
+    }
+
   })
   # universeData <- reactive({
   #   if (is.null(input$universe)) {
@@ -167,7 +178,7 @@ shinyServer(function(session, input, output){
   # })
   
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
-  
+  output$CleaningDescription1 = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   #### Main Panel ####
   
   options(DT.options = list(pageLength = 15))
@@ -218,12 +229,12 @@ shinyServer(function(session, input, output){
   
   ## Display table with number lipids in cleaned datasets ## 1. HAVING TROUBLE WITH THE REACTIVITY HERE - I WANT TO POPULATE THE TABLE WITH THE NUMBERS FROM THE FILE UPLOADS AS SOON AS THE FILE IS UPLOADED, AND THEN POPULATE THE REST OF THE TABLE WITH THE NUMBERS FROM THE CLEANED DATA AFTER THE BUTTON HAS BEEN CLICKED
   output$summary_data <- renderTable({
-    input$query
-    input$universe
-    # req(universeDataClean())
-    # req(queryDataClean())
-    # req(cleanResultsUniverse())
-    # req(cleanResultsQuery())
+    #input$query
+    #input$universe
+     req(universeDataClean())
+     req(queryDataClean())
+     #req(cleanResultsUniverse())
+     #req(cleanResultsQuery())
     
     # If query data uploaded
     if(!is.null(queryData())){
@@ -281,7 +292,7 @@ shinyServer(function(session, input, output){
       need(nrow(queryData()) > 0, 
            'Please upload Query file with > 1 lipid')
     )
-    if (input$check_click > 0){
+    if (input$check_click > 0 | input$check_click1 > 0){
       return(clean.lipid.list(X = queryData()))
     } else {
       return(NULL)
@@ -293,7 +304,7 @@ shinyServer(function(session, input, output){
       need(nrow(universeData()) > 0, 
            'Please upload Universe file with > 1 lipid')
     )
-    if (input$check_click > 0){
+    if (input$check_click > 0 | input$check_click1 > 0){
       return(clean.lipid.list(X = universeData()))
     } else {
       return(NULL)
@@ -302,23 +313,54 @@ shinyServer(function(session, input, output){
   
   
   # Run lipid.miner on the 2 datasets #
-  queryMined <- eventReactive(input$check_click, {
+  mine_the_data <- reactiveValues(go = FALSE)
+  observeEvent(input$check_click, {
+    mine_the_data$go <- TRUE
+  }, priority = 10)
+  
+  observeEvent(input$check_click1, {
+    mine_the_data$go <- TRUE
+  }, priority = 10)
+  # 
+  # queryMined <- eventReactive(input$check_click, {
+  #   validate(
+  #     need(length(queryDataClean()) > 0, 
+  #          'There are zero lipids in the cleaned query data')
+  #   )
+  #   
+  #   lipid.miner(queryDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+  # })
+  
+  
+  queryMined <- reactive({
     validate(
       need(length(queryDataClean()) > 0, 
            'There are zero lipids in the cleaned query data')
     )
-    
-    lipid.miner(queryDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+    if (mine_the_data$go) {
+      return(lipid.miner(queryDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE))
+    } else {return(NULL)}
   })
   
-  universeMined <- eventReactive(input$check_click, {
+  universeMined <- reactive({
     validate(
       need(length(universeDataClean()) > 0, 
            'There are zero lipids in the cleaned universe data')
     )
-    
-    lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+    if (mine_the_data$go) {
+      return(lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE))
+    } else {return(NULL)}
   })
+
+  # universeMined <- eventReactive(input$check_click, {
+  #   validate(
+  #     need(length(universeDataClean()) > 0, 
+  #          'There are zero lipids in the cleaned universe data')
+  #   )
+  #   
+  #   lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
+  # })
+  
   
   
   ## Display success message if everything is loaded correctly ##
@@ -327,11 +369,10 @@ shinyServer(function(session, input, output){
     req(queryDataClean())
     req(universeMined())
     req(queryMined())
-    
     test1 <- universeDataClean()
     test2 <- queryDataClean()
-    test3 <- universeMined()
-    test4 <- queryMined()
+    #test3 <- universeMined()
+    #test4 <- queryMined()
     
     if(all(test2 %in% test1)){
       HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded and cleaned.

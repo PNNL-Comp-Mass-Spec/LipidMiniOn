@@ -32,34 +32,89 @@ tagList(
                       sidebarLayout(
                         
                         sidebarPanel(
-                          ## Load Query file ##
-                          fluidRow(
-                            column(width = 12,
-                                   fileInput("query", "Upload 'Query' Lipid Names (.csv)",
-                                             multiple = TRUE,
-                                             accept = c("text/csv",
-                                                        "text/comma-separated-values,text/plain",
-                                                        ".csv"))
-                            )
-                          ), 
-                          fluidRow(
-                            column(width = 12,
-                                   ## Load Universe file ##
-                                   fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
-                                             multiple = TRUE,
-                                             accept = c("text/csv",
-                                                        "text/comma-separated-values,text/plain",
-                                                        ".csv"))
-                                   #textInput("universe", "Upload 'Universe' Lipid Names")
-                            )
-                          ),
+                          shiny::tabsetPanel(
+                            tabPanel(title = "File Upload",
+                                     ## Load Query file ##
+                                     br(),
+                                     fluidRow(
+                                       column(width = 12,
+                                              fileInput("query", "Upload 'Query' Lipid Names (.csv)",
+                                                        multiple = TRUE,
+                                                        accept = c("text/csv",
+                                                                   "text/comma-separated-values,text/plain",
+                                                                   ".csv"))
+                                       )
+                                     ), 
+                                     fluidRow(
+                                       column(width = 12,
+                                              ## Load Universe file ##
+                                              fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
+                                                        multiple = TRUE,
+                                                        accept = c("text/csv",
+                                                                   "text/comma-separated-values,text/plain",
+                                                                   ".csv"))
+                                              #textInput("universe", "Upload 'Universe' Lipid Names")
+                                       )
+                                     ),
+                                     ## Description of what the "Check Data" button does #
+                                     textOutput("CleaningDescription"),
+                                     br(),
+                                     
+                                     ## Process data button (clean it) ##
+                                     actionButton('check_click', 'Check Data')
+                                     ),
+                            tabPanel(title = "Text Upload",
+                                     br(),
+                                     ## Load Query file ##
+                                     fluidRow(
+                                       column(width = 12,
+                                              textAreaInput("query_text", "Enter 'Query' Lipid Names"
+                                                            )
+                                       )
+                                     ), 
+                                     fluidRow(
+                                       column(width = 12,
+                                              ## Load Universe file ##
+                                              textAreaInput("universe_text", "Enter 'Universe' Lipid Names")
+                                              #textInput("universe", "Upload 'Universe' Lipid Names")
+                                       )
+                                     ),
+                                     ## Description of what the "Check Data" button does #
+                                     textOutput("CleaningDescription1"),
+                                     br(),
+                                     
+                                     ## Process data button (clean it) ##
+                                     actionButton('check_click1', 'Check Data')
+                            ))
                           
-                          ## Description of what the "Check Data" button does #
-                          textOutput("CleaningDescription"),
-                          br(),
+                          # ## Load Query file ##
+                          # fluidRow(
+                          #   column(width = 12,
+                          #          fileInput("query", "Upload 'Query' Lipid Names (.csv)",
+                          #                    multiple = TRUE,
+                          #                    accept = c("text/csv",
+                          #                               "text/comma-separated-values,text/plain",
+                          #                               ".csv"))
+                          #   )
+                          # ), 
+                          # fluidRow(
+                          #   column(width = 12,
+                          #          ## Load Universe file ##
+                          #          fileInput("universe", "Upload 'Universe' Lipid Names (.csv)",
+                          #                    multiple = TRUE,
+                          #                    accept = c("text/csv",
+                          #                               "text/comma-separated-values,text/plain",
+                          #                               ".csv"))
+                          #          #textInput("universe", "Upload 'Universe' Lipid Names")
+                          #   )
+                          # ),
                           
-                          ## Process data button (clean it) ##
-                          actionButton('check_click', 'Check Data')
+                          # ## Description of what the "Check Data" button does #
+                          # textOutput("CleaningDescription"),
+                          # br(),
+                          # 
+                          # ## Process data button (clean it) ##
+                          # actionButton('check_click', 'Check Data')
                         ), 
                         
                         ## Main Panel ##
@@ -117,7 +172,7 @@ tagList(
                           # (should be "none" by default but can be also "category", "mainclass", "subclass")
                           selectInput('dd_subset_id', 'Subset to test:',
                                       choices = c("None (default)", 
-                                                  "All" = "length",
+                                                  "All" = "all",
                                                   "Category" = "category",
                                                   "Main Class" = "mainclass",
                                                   "Subclass" = "subclass"
