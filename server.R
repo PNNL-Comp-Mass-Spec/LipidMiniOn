@@ -151,7 +151,8 @@ shinyServer(function(session, input, output){
       return(read.csv(filename, stringsAsFactors = FALSE)) 
     } else if (input$query_text != "")
     req(input$query_text)
-    temp <- strsplit(input$query_text, split = " ")[[1]]
+    input$check_click1
+    temp <- strsplit(isolate(input$query_text), split = " ")[[1]]
     return(data.frame(ID = temp, row.names = NULL))
   })
   
@@ -163,7 +164,8 @@ shinyServer(function(session, input, output){
       return(read.csv(filename, stringsAsFactors = FALSE) )
     } else if (input$universe_text != ""){
       req(input$universe_text)
-      temp <- strsplit(input$universe_text, split = " ")[[1]]
+      input$check_click1
+      temp <- strsplit(isolate(input$universe_text), split = " ")[[1]]
       return(data.frame(ID = temp, row.names = NULL))
     }
 
