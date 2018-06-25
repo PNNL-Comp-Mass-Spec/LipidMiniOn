@@ -160,7 +160,7 @@ tagList(
                           
                           
                           ### What to look at in the subset - checkbox group ###
-                          checkboxGroupInput("cb_params_subclass", tags$b("Main class specific parameters"),
+                          checkboxGroupInput("cb_params_subclass", tags$b("Parameters to test within each subset"),
                                              choices = c("Total number of chain carbon" = "total_carbon",
                                                          "Total number of double bonds" = "total_insaturation",
                                                          "Individual chains (e.g. fatty acids)" = "specific_chains")
