@@ -139,7 +139,7 @@ createSubPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
 }
 
 shinyServer(function(session, input, output){
-  Sys.setenv(R_ZIPCMD="/usr/bin/zip")
+  #Sys.setenv(R_ZIPCMD="/usr/bin/zip")
   ######## Upload Tab ##############
   
   #### Sidebar Panel ####
@@ -233,8 +233,8 @@ shinyServer(function(session, input, output){
   output$summary_data <- renderTable({
     #input$query
     #input$universe
-     req(universeDataClean())
-     req(queryDataClean())
+     # req(universeDataClean())
+     # req(queryDataClean())
      #req(cleanResultsUniverse())
      #req(cleanResultsQuery())
     
@@ -367,6 +367,7 @@ shinyServer(function(session, input, output){
   
   ## Display success message if everything is loaded correctly ##
   output$process_success <- renderUI({
+
     req(universeDataClean()) 
     req(queryDataClean())
     req(universeMined())
@@ -383,21 +384,15 @@ shinyServer(function(session, input, output){
       #HTML('<h4 style= "color:#1A5276"></h4>')
       HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query but not in the Universe: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
     }
-    
-    
-    
-    
-    # ## Download option for cleaned data ## 2. THESE BUTTONS SHOULD ONLY BE AVAILABLE ONCE THE DATA HAS BEEN SUCCESSFULLY CLEANED
-    
   })
   
-  output$downloadQueryClean <- downloadHandler(
+  output$QueryClean.txt <- downloadHandler(
     filename = function() {
       paste("Query_Data_Cleaned", ".txt", sep = "")
     },
     content = function(file) {
       query = queryDataClean()
-      write.table(query, file, row.names = FALSE)
+      write.table(query, file, row.names = FALSE, sep = "\t")
     }
   )
   
@@ -405,19 +400,19 @@ shinyServer(function(session, input, output){
     if (is.null(queryDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadQueryClean", "Download Passed Query Data")
+      downloadButton(outputId = "QueryClean.txt", "Download Passed Query Data")
     }
   })
   
   
   
-  output$downloadUniverseClean <- downloadHandler(
+  output$UniverseClean.txt <- downloadHandler(
     filename = function() {
       paste("Universe_Data_Cleaned", ".txt", sep = "")
     },
     content = function(file) {
       universe = universeDataClean()
-      write.table(universe, file, row.names = FALSE)
+      write.table(universe, file, row.names = FALSE, sep = "\t")
     }
   )
   
@@ -425,7 +420,7 @@ shinyServer(function(session, input, output){
     if (is.null(universeDataClean())) {
       return(NULL)
     } else {
-      downloadButton("downloadUniverseClean", "Download Passed Universe Data")
+      downloadButton(outputId = "UniverseClean.txt", "Download Passed Universe Data")
     }
   })
   
@@ -626,7 +621,7 @@ shinyServer(function(session, input, output){
     #-------- Classification Charts --------#
     if (input$chooseplots == 1) {
       return(tagList(
-        radioButtons(inputId = "type" ,label = "Type", 
+        radioButtons(inputId = "type" ,label = tags$b("Type"), 
                      choices = c("Category", "Main Class", "Subclass"),
                      selected = "Category"),
         
@@ -640,7 +635,7 @@ shinyServer(function(session, input, output){
     }
     #-------- Subset Charts --------#
     if (input$chooseplots == 3) {
-      radioButtons(inputId = "classification_type" ,label = "Select a Classification Type", 
+      radioButtons(inputId = "classification_type" ,label = tags$b("Select a Classification Type"), 
                    choices = c("All Chains", "Category", "Main Class", "Subclass"),
                    selected = "All Chains")
     }
@@ -652,15 +647,15 @@ shinyServer(function(session, input, output){
       return(NULL)
     }
     else if (input$classification_type == "Category") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$Category,
                   selected = queryMined()$intact$Category[1])
     } else if (input$classification_type == "Main Class") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$`Main class`,
                   selected = queryMined()$intact$`Main class`[1])
     } else if (input$classification_type == "Subclass") {
-      selectInput(inputId = "subset_name", "Select a Chain", 
+      selectInput(inputId = "subset_name", tags$b("Select a Chain"), 
                   choices = queryMined()$intact$`Sub class`,
                   selected = queryMined()$intact$`Sub class`[1])
     }
@@ -714,7 +709,7 @@ shinyServer(function(session, input, output){
         } else {
           p1 <- ggplotly(intact.main.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.main.stack(queryMined()$intact), tooltip = 'tag') 
-          return(subplot(p1,p2) %>% layout(annotations = list(
+          return(subplot(p1,p2) %>% layout(showlegend = FALSE, annotations = list(
             list(
               x = 0.225, 
               y = 1.0, 
@@ -748,7 +743,7 @@ shinyServer(function(session, input, output){
         } else {
           p1 <- ggplotly(intact.sub.stack(universeMined()$intact), tooltip = 'tag') 
           p2 <- ggplotly(intact.sub.stack(queryMined()$intact), tooltip = 'tag') 
-          return(subplot(p1,p2) %>% layout(annotations = list(
+          return(subplot(p1,p2) %>% layout(showlegend = FALSE, annotations = list(
             list(
               x = 0.225, 
               y = 0.97, 
@@ -874,7 +869,7 @@ shinyServer(function(session, input, output){
           ))
         return(pp)
       } else {
-        subplot(p1,p2,p3,p4, nrows = 2) %>% layout(annotations = list(
+        subplot(p1,p2,p3,p4, nrows = 2) %>% layout(showlegend = FALSE, annotations = list(
           list(
             x = 0.225, 
             y = 0.99, 
@@ -931,8 +926,8 @@ shinyServer(function(session, input, output){
                                    X = queryMined()$allchains)+
                    ggtitle(paste("All chains"))+
                    theme_bw()+
-                   theme(axis.text.x = element_text(angle = 90))+
-                   scale_fill_manual(values =c("grey","blue")))
+                   theme(axis.text.x = element_text(angle = 90), legend.title=element_blank())+
+                   scale_fill_manual(values =c("grey","#336699")))
       }
       else if (input$classification_type == "Category") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
@@ -940,24 +935,24 @@ shinyServer(function(session, input, output){
                                    X = subsetcat(queryMined()$allchains, cat = input$subset_name))+
                    ggtitle(paste("All chains of the category", input$subset_name))+
                    theme_bw()+
-                   theme(axis.text.x = element_text(angle = 90))+
-                   scale_fill_manual(values =c("grey","blue")))
+                   theme(axis.text.x = element_text(angle = 90), legend.title=element_blank())+
+                   scale_fill_manual(values =c("grey","#336699")))
       } else if(input$classification_type == "Main Class") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
         ggplotly(allchains.barplot(Y = subsetmainclass(universeMined()$allchains, mainclass = input$subset_name),
                                    X = subsetmainclass(queryMined()$allchains, mainclass = input$subset_name))+
                    ggtitle(paste("All chains of the main class", input$subset_name))+
                    theme_bw()+
-                   theme(axis.text.x = element_text(angle = 90))+
-                   scale_fill_manual(values = c("grey","blue")))
+                   theme(axis.text.x = element_text(angle = 90), legend.title=element_blank())+
+                   scale_fill_manual(values = c("grey","#336699")))
       } else if(input$classification_type == "Subclass") {
         validate(need(input$subset_name != "", message = "Please select a subset chain"))
         ggplotly(allchains.barplot(Y = subsetsubclass(universeMined()$allchains, subclass = input$subset_name),
                                    X =subsetsubclass(queryMined()$allchains, subclass = input$subset_name))+
                    ggtitle(paste("All chains of the subclass", input$subset_name))+
                    theme_bw()+
-                   theme(axis.text.x = element_text(angle = 90))+
-                   scale_fill_manual(values =c("grey","blue")))
+                   theme(axis.text.x = element_text(angle = 90), legend.title=element_blank())+
+                   scale_fill_manual(values =c("grey","#336699")))
       }
     }
   })
@@ -971,7 +966,7 @@ shinyServer(function(session, input, output){
                     )
         ),
         ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
-        textInput(inputId = "graph_pval", label = "Select a value", value = 0.05)
+        textInput(inputId = "graph_pval", label = tags$b("Select a value"), value = 0.05)
       ) 
     } else {
       return(NULL)
@@ -1011,7 +1006,7 @@ shinyServer(function(session, input, output){
   #   network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
   #   return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
   # })
-  output$network <- renderVisNetwork({
+  network_components <- reactive({
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
       if (input$graph_pval_type == "Unadjusted p-value (default)"){
@@ -1036,43 +1031,53 @@ shinyServer(function(session, input, output){
                                                                           subset.select = c(T,T,T),
                                                                           enrich = F,subset.by = "category"))
     }
-
-    colnames(network.nodes_attributes)<-c("label","title","color.background")
-    network.nodes_attributes2<<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
-    network.nodes_attributes2$title<- network.nodes_attributes2$label
-    network.edges_attributes2<<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
-    return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
+    
+    colnames(network.nodes_attributes) <- c("label","title","color.background")
+    network.nodes_attributes2 <- cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
+    network.nodes_attributes2$title <- network.nodes_attributes2$label
+    network.edges_attributes2 <- data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
+    return(list(Nodes = network.nodes_attributes2, Edges = network.edges_attributes2))
+  })
+  output$network <- renderVisNetwork({
+       return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "1700px") %>%
+                visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
 
   })
   
-  output$downloadNetwork <- downloadHandler(
-    filename = paste("Network_Output_",proc.time(),".zip", sep = ""),
-    content = function(fname) { #write a function to create the content populating said directory
-      fs <- vector()
-      tmpdir <- tempdir() # render the images in a temporary environment
-      setwd(tempdir())
-      print(tempdir())
-      fs <- c(fs, "Network_nodes.txt", "Network_edges.txt")
-      write.table(network.nodes_attributes2, file = "Network_nodes.txt")
-      write.table(network.edges_attributes2, file = "Network_edges.txt")
-      print(fs)
-      zip(zipfile=fname, files=fs)
-      if(file.exists(paste0(fname,".zip"))){file.rename(paste0(fname,".zip"),fname)}
+  output$downloadNetworkNodes <- downloadHandler(
+    filename = function() {
+      paste("Network_nodes", ".txt", sep = "")
     },
-    contentType = "application/zip"
+    content = function(file) {
+      temp <- network_components()$Nodes
+      write.table(temp, file, sep = "\t")
+    }
   )
-  
-  output$downloadNetworkUI <- renderUI({
+
+  output$downloadNetworkNodesUI <- renderUI({
     if (is.null(queryMined())) {
       return(NULL)
     } else {
-      downloadButton("downloadNetwork", "Download Network Nodes and Edges")
+      downloadButton(outputId = "NetworkNodes.txt", "Download Network Nodes")
     }
   })
-  # output$pie <- renderPlot({
-  #   req(queryMined())
-  #   chain.pieCat(queryMined()$chain)
-  # })
-  # 
   
+  output$NetworkEdges.txt <- downloadHandler(
+    filename = function() {
+      paste("Network_edges", ".txt", sep = "")
+    },
+    content = function(file) {
+      temp <- network_components()$Edges
+      write.table(temp, file, sep = "\t")
+    }
+  )
+  # do not zip these, three buttons for three tsv
+  output$NetworkEdges.txt <- renderUI({
+    if (is.null(queryMined())) {
+      return(NULL)
+    } else {
+      downloadButton(outputId = "NetworkEdges.txt", "Download Network Edges")
+    }
+  })
+
 })
