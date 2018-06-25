@@ -95,7 +95,7 @@ tagList(
                           # Summary table giving number lipids # 1. HAVING TROUBLE WITH THE REACTIVITY HERE (SEE THE SERVER FILE FOR A NOTE ON WHAT I'M TRYING TO DO), ALSO GETTING ERROR ABOUT SUBSETTING...
                           
                             conditionalPanel(condition = 'input.check_click == 0 & input.check_click1 == 0',{
-                              img(src="logoteal.pdf")
+                              img(src="displaylogo.png", height = "60%", width = "60%")
                             }),
                           conditionalPanel(condition = 'input.check_click > 0 | input.check_click1 > 0',{
                             uiOutput("process_success")
@@ -226,7 +226,7 @@ tagList(
              tabPanel("Results Network",
                       sidebarLayout(
                         sidebarPanel(
-                          checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = TRUE),
+                          checkboxInput("graph_pval_filter", label = tags$b("Check Box to Filter by P-Value"), value = FALSE),
                           uiOutput("graph_pval_ui"),
                           fluidRow(
                             column(width = 6,
