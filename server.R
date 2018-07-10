@@ -1039,7 +1039,7 @@ shinyServer(function(session, input, output){
     return(list(Nodes = network.nodes_attributes2, Edges = network.edges_attributes2))
   })
   output$network <- renderVisNetwork({
-       return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "1700px") %>%
+       return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "800px") %>%
                 visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
 
   })

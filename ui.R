@@ -10,6 +10,7 @@
 library(shiny)
 library(plotly)
 library(visNetwork)
+library(shinycssloaders)
 
 # Define UI for application that draws a histogram
 tagList(
@@ -239,7 +240,7 @@ tagList(
                          
                         ),
                         mainPanel( 
-                      visNetworkOutput("network", width = "100%", height = "1700px")
+                      withSpinner(visNetworkOutput("network", width = "100%", height = "800px"))
                       )
                       )
                       ),
