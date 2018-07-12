@@ -506,7 +506,7 @@ shinyServer(function(session, input, output){
   #### Action Button Reactions ####
   
   # Run the specified test(s) when Process Data button is clicked #
-  global_results <- eventReactive(input$precheck_click, {
+  unfiltered_results <- eventReactive(input$precheck_click, {
     validate(
       # need cleaned query data #
       need(length(queryMined()) > 0, 
@@ -518,18 +518,36 @@ shinyServer(function(session, input, output){
       need(input$dd_enrich_test != "none",
            'Please select an enrichment test to use.')
     )
-    temp <- run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
+    temp <- run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = FALSE)#, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
   # for now, filter p-values outside of run the tests
-    if(input$cb_pval_filter) {
+    # if(input$cb_pval_filter) {
+    #   #figure out which filter to use
+    #   if( input$dd_pval_type == "Adjusted p-value"){
+    #     temp <- subset(temp, BHadjustPvalue <= input$ue_pval_thresh)
+    #   } else if ( input$dd_pval_type == "Unadjusted p-value (default)"){
+    #     temp <- subset(temp, Pvalue <= input$ue_pval_thresh)
+    #   }
+    # }
+    return(temp)
+    })
+  #------ Visualization Object ------#
+  global_results <- reactive({
+    req(unfiltered_results())
+    temp <- unfiltered_results()
+    if (input$cb_pval_filter) {
       #figure out which filter to use
-      if( input$dd_pval_type == "Adjusted p-value"){
+      if (input$dd_pval_type == "Adjusted p-value"){
         temp <- subset(temp, BHadjustPvalue <= input$ue_pval_thresh)
       } else if ( input$dd_pval_type == "Unadjusted p-value (default)"){
         temp <- subset(temp, Pvalue <= input$ue_pval_thresh)
       }
+      temp <- subset(temp, fold.change > 1)
     }
     return(temp)
-    })
+  })
+  
+
+  
   
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
@@ -958,15 +976,21 @@ shinyServer(function(session, input, output){
   })
   #------------------ Results Network ---------------#
   output$graph_pval_ui <- renderUI({
+    if (!input$cb_pval_filter) {
+      pv <- 1
+    } else {
+      pv <- as.numeric(input$ue_pval_thresh)
+    }
     if (input$graph_pval_filter) {
       tagList(
-        selectInput("graph_pval_type", "",
+        selectInput(inputId = "graph_pval_type", "",
                     choices = c("Unadjusted p-value (default)", 
                                 "Adjusted p-value"
-                    )
+                    ),
+                    selected = "Unadjusted p-value (default)"
         ),
         ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
-        textInput(inputId = "graph_pval", label = tags$b("Select a value"), value = 0.05)
+        textInput(inputId = "graph_pval", label = tags$b("Select a value"), value = pv)
       ) 
     } else {
       return(NULL)
@@ -1006,30 +1030,35 @@ shinyServer(function(session, input, output){
   #   network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
   #   return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
   # })
+  
+  #------- Network Object ------#
+  global_results_network <- reactive({
+    req(unfiltered_results())
+    temp <- unfiltered_results()
+    if (input$graph_pval_filter) {
+      #figure out which filter to use
+      if (input$graph_pval_type == "Adjusted p-value"){
+        temp <- subset(temp, BHadjustPvalue <= input$graph_pval)
+      } else if ( input$graph_pval_type == "Unadjusted p-value (default)"){
+        temp <- subset(temp, Pvalue <= input$graph_pval)
+      }
+      temp <- subset(temp, fold.change > 1)
+    }
+    return(temp)
+  })
+  
   network_components <- reactive({
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
       if (input$graph_pval_type == "Unadjusted p-value (default)"){
-        lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-                                                                            lipid.miner(universeMined()$intact$Lipid, output.list = T),
-                                                                            test.type = "EASE", general.select = c(T,T,T,T,T),
-                                                                            subset.select = c(T,T,T),
-                                                                            enrich = F,subset.by = "category"),
+        lipid_network_maker(queryMined()$intact$Lipid, global_results_network(),
                             pval = as.numeric(input$graph_pval))
       } else if (input$graph_pval_type == "Adjusted p-value"){
-        lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-                                                                            lipid.miner(universeMined()$intact$Lipid, output.list = T),
-                                                                            test.type = "EASE", general.select = c(T,T,T,T,T),
-                                                                            subset.select = c(T,T,T),
-                                                                            enrich = F,subset.by = "category"),
+        lipid_network_maker(queryMined()$intact$Lipid, global_results_network(),
                             adjpval = as.numeric(input$graph_pval))
       }
     } else {
-      lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-                                                                          lipid.miner(universeMined()$intact$Lipid, output.list = T),
-                                                                          test.type = "EASE", general.select = c(T,T,T,T,T),
-                                                                          subset.select = c(T,T,T),
-                                                                          enrich = F,subset.by = "category"))
+      lipid_network_maker(queryMined()$intact$Lipid, global_results_network())
     }
     
     colnames(network.nodes_attributes) <- c("label","title","color.background")
@@ -1039,12 +1068,13 @@ shinyServer(function(session, input, output){
     return(list(Nodes = network.nodes_attributes2, Edges = network.edges_attributes2))
   })
   output$network <- renderVisNetwork({
+    validate(need(input$precheck_click > 1, message = "Please Process Data on Enrichment Analysis Tab"))
        return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "800px") %>%
                 visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
 
   })
   
-  output$downloadNetworkNodes <- downloadHandler(
+  output$NetworkNodes.txt <- downloadHandler(
     filename = function() {
       paste("Network_nodes", ".txt", sep = "")
     },
@@ -1071,8 +1101,8 @@ shinyServer(function(session, input, output){
       write.table(temp, file, sep = "\t")
     }
   )
-  # do not zip these, three buttons for three tsv
-  output$NetworkEdges.txt <- renderUI({
+
+  output$downloadNetworkEdgesUI <- renderUI({
     if (is.null(queryMined())) {
       return(NULL)
     } else {
@@ -1080,4 +1110,21 @@ shinyServer(function(session, input, output){
     }
   })
 
+  output$NetworkEdgeAttributes.txt <- downloadHandler(
+    filename = function() {
+      paste("Network_edge_attributes", ".txt", sep = "")
+    },
+    content = function(file) {
+      temp <- network.edges_attributes
+      write.table(temp, file, sep = "\t")
+    }
+  )
+  
+  output$downloadNetworkEdgeAttributesUI <- renderUI({
+    if (is.null(queryMined())) {
+      return(NULL)
+    } else {
+      downloadButton(outputId = "NetworkEdgeAttributes.txt", "Download Network Edge Attributes")
+    }
+  })
 })
