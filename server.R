@@ -1070,10 +1070,21 @@ shinyServer(function(session, input, output){
     network.edges_attributes2 <- data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
     return(list(Nodes = network.nodes_attributes2, Edges = network.edges_attributes2))
   })
+  
+  output$graphplaceholder = renderText({
+    if (input$precheck_click == 0) {
+      return("Please Process Data on the Enruchment Analysis tab to continue")
+    } else {
+      return(NULL)
+    }
+  })
   output$network <- renderVisNetwork({
-    validate(need(input$precheck_click > 1, message = "Please Process Data on Enrichment Analysis Tab"))
+    if (input$precheck_click == 0) {
+      return(NULL)
+    } else{
        return(visNetwork(network_components()$Nodes, network_components()$Edges, width = "100%", height = "800px") %>%
                 visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
+    }
 
   })
   
