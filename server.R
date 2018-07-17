@@ -170,6 +170,9 @@ shinyServer(function(session, input, output){
     }
 
   })
+  
+  #---------- Example Data Download --------#
+  
   # universeData <- reactive({
   #   if (is.null(input$universe)) {
   #     return(NULL)
@@ -599,14 +602,14 @@ shinyServer(function(session, input, output){
   
   output$downloadGlobalResults <- downloadHandler(
     filename = function() {
-      paste(table_name(), ".csv", sep = "")
+      paste(table_name(), ".txt", sep = "")
     },
     content = function(file) {
       display_table <- isolate(global_results())
       #test_display_name <- stringr::str_split(global_results()$Test.performed, pattern = "[(]")
       display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
       
-      write.csv(display_table, file, row.names = FALSE)
+      write.table(display_table, file, row.names = FALSE)
     }
   )
   
