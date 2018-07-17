@@ -87,23 +87,23 @@ tagList(
                                      ## Process data button (clean it) ##
                                      actionButton('check_click1', 'Check Data')
                             ),
-                            tabPanel(title = "Example Data",
+                            tabPanel(title = "Examples",
                                      br(),
                                      tags$p("Download example files for analysis"),
                                      br(),
                                      fluidRow(
-                                       column(width = 6, tags$p("Example Dataset 1"),
-                                              downloadButton("downloadExample1", "Download Example Data 1")),
-                                       column(width = 6,tags$p("Example Dataset 2"),
-                                              downloadButton("downloadExample2", "Download Example Data 2"))
+                                       column(width = 6, tags$p("Example 1 Query"),
+                                              downloadButton("downloadExample1.1", "Download Query")),
+                                       column(width = 6,tags$p("Example 1 Universe"),
+                                              downloadButton("downloadExample1.2", "Download Universe"))
                                      ),
                                      
                                      br(),
                                      fluidRow(
-                                       column(width = 6, tags$p("Example Dataset 3"),
-                                              downloadButton("downloadExample3", "Download Example Data 3")),
-                                       column(width = 6,tags$p("Example Dataset 4"),
-                                              downloadButton("downloadExample4", "Download Example Data 4"))
+                                       column(width = 6, tags$p("Example 2 Query"),
+                                              downloadButton("downloadExample2.1", "Download Query")),
+                                       column(width = 6,tags$p("Example 2 Universe"),
+                                              downloadButton("downloadExample2.2", "Download Universe"))
                                      )
                                      
                                      )
@@ -267,6 +267,7 @@ tagList(
                           )
                         ),
                         mainPanel( 
+                          textOutput("graphplaceholder"),
                       withSpinner(visNetworkOutput("network", width = "100%", height = "800px"))
                       )
                       )
