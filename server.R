@@ -18,126 +18,7 @@ library(plotly)
 library(gridExtra)
 library(htmlwidgets)
 source("./run_the_tests.R")
-createCatPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
-  p1 <- ggplotly(intact.cat.pie(pie_data1)) %>% plotly_data()
-  p2 <- ggplotly(intact.cat.pie(pie_data2)) %>% plotly_data()
-  pp <- plot_ly() %>%
-    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0, 0.45), y = c(0, 1)),
-            marker = list(colors = p1$Color)) %>%
-    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0.55, 1), y = c(0, 1)),
-            marker = list(colors = p2$Color)) %>%
-    layout(showlegend = FALSE, annotations = list(
-      list(
-        x = 0.225, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = left_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      ),
-      list(
-        x = 0.775, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = right_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      )
-    ))
-  return(pp)
-}
-createMainPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
-  p1 <- ggplotly(intact.main.pie(pie_data1)) %>% plotly_data()
-  p2 <- ggplotly(intact.main.pie(pie_data2)) %>% plotly_data()
-  pp <- plot_ly() %>%
-    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0, 0.45), y = c(0, 1)),
-            marker = list(colors = p1$Color)) %>%
-    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0.55, 1), y = c(0, 1)),
-            marker = list(colors = p2$Color)) %>%
-    layout(showlegend = FALSE, annotations = list(
-      list(
-        x = 0.225, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = left_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      ),
-      list(
-        x = 0.775, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = right_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      )
-    ))
-  return(pp)
-}
-createSubPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
-  p1 <- ggplotly(intact.sub.pie(pie_data1)) %>% plotly_data()
-  p2 <- ggplotly(intact.sub.pie(pie_data2)) %>% plotly_data()
-  pp <- plot_ly() %>%
-    add_pie(data = p1, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0, 0.45), y = c(0, 1)),
-            marker = list(colors = p1$Color)) %>%
-    add_pie(data = p2, labels = ~tag, values = ~Percentage, 
-            textposition = 'inside',
-            textinfo = 'label',
-            domain = list(x = c(0.55, 1), y = c(0, 1)),
-            marker = list(colors = p2$Color)) %>%
-    layout(showlegend = FALSE, annotations = list(
-      list(
-        x = 0.225, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = left_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      ),
-      list(
-        x = 0.775, 
-        y = 1.0, 
-        font = list(size = 16), 
-        showarrow = FALSE, 
-        text = right_title, 
-        xanchor = "center", 
-        xref = "paper", 
-        yanchor = "bottom", 
-        yref = "paper"
-      )
-    ))
-  return(pp)
-}
+source("./pie_chart_functions.R")
 
 shinyServer(function(session, input, output){
   #Sys.setenv(R_ZIPCMD="/usr/bin/zip")
@@ -213,16 +94,8 @@ shinyServer(function(session, input, output){
       write.table(universe_soil_surface, file, row.names = FALSE, sep = "\t")
     }
   )
-  
-  # universeData <- reactive({
-  #   if (is.null(input$universe)) {
-  #     return(NULL)
-  #   } else {
-  #   temp <- strsplit(input$universe, split = " ")[[1]]
-  #   data.frame(ID = temp, row.names = NULL)
-  #   }
-  # })
-  
+
+  #---------- Depending on the type of data upload (text or csv) display a success message if successful
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   output$CleaningDescription1 = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   #### Main Panel ####
@@ -270,18 +143,7 @@ shinyServer(function(session, input, output){
     
   }, rownames = TRUE, align = 'c')
   
-  
-  #### Action Button Reactions ####
-  
-  # Clean the 2 datasets #
-  # queryDataClean <- eventReactive(input$check_click, {
-  #   validate(
-  #     need(nrow(queryData()) > 0, 
-  #          'Please upload Query file with > 1 lipid')
-  #   )
-  #   
-  #   clean.lipid.list(X=queryData())
-  # })
+#----- Clean the uploaded data --------#
   queryDataClean <- reactive({
     validate(
       need(nrow(queryData()) > 0, 
@@ -307,7 +169,7 @@ shinyServer(function(session, input, output){
   })
   
   
-  # Run lipid.miner on the 2 datasets #
+#----- Run lipid.miner on the 2 datasets ------#
   mine_the_data <- reactiveValues(go = FALSE)
   observeEvent(input$check_click, {
     mine_the_data$go <- TRUE
@@ -316,17 +178,7 @@ shinyServer(function(session, input, output){
   observeEvent(input$check_click1, {
     mine_the_data$go <- TRUE
   }, priority = 10)
-  # 
-  # queryMined <- eventReactive(input$check_click, {
-  #   validate(
-  #     need(length(queryDataClean()) > 0, 
-  #          'There are zero lipids in the cleaned query data')
-  #   )
-  #   
-  #   lipid.miner(queryDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
-  # })
-  
-  
+
   queryMined <- reactive({
     validate(
       need(length(queryDataClean()) > 0, 
@@ -367,15 +219,12 @@ shinyServer(function(session, input, output){
     req(queryMined())
     test1 <- universeDataClean()
     test2 <- queryDataClean()
-    #test3 <- universeMined()
-    #test4 <- queryMined()
-    
-    if(all(test2 %in% test1)){
+
+    if (all(test2 %in% test1)){
       HTML('<h4 style= "color:#1A5276">Your data has been successfully uploaded and cleaned.
          You may proceed to the subsequent tabs for analysis.</h4>')
     }else{
-      #HTML('<h4 style= "color:#1A5276"></h4>')
-      HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query but not in the Universe: ', setdiff(test2, test1)),'</h4>', sep="", collapse=""))
+      HTML(paste('<h4 style= "color:#cc3d16">', c('The following lipids are in the Query but not in the Universe: ', setdiff(test2, test1)),'</h4>', sep = "", collapse=""))
     }
   })
   
@@ -476,16 +325,10 @@ shinyServer(function(session, input, output){
       need(input$dd_enrich_test != "none",
            'Please select an enrichment test to use.')
     )
-    temp <- run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(), test.type = input$dd_enrich_test, general.select = input$cb_test_params, subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = FALSE)#, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
-  # for now, filter p-values outside of run the tests
-    # if(input$cb_pval_filter) {
-    #   #figure out which filter to use
-    #   if( input$dd_pval_type == "Adjusted p-value"){
-    #     temp <- subset(temp, BHadjustPvalue <= input$ue_pval_thresh)
-    #   } else if ( input$dd_pval_type == "Unadjusted p-value (default)"){
-    #     temp <- subset(temp, Pvalue <= input$ue_pval_thresh)
-    #   }
-    # }
+    temp <- run_the_tests(Query.miner = queryMined(), Universe.miner = universeMined(),
+                          test.type = input$dd_enrich_test, general.select = input$cb_test_params,
+                          subset.by = input$dd_subset_id, subset.select = input$cb_params_subclass, enrich = FALSE)#, enrich = input$cb_pval_filter, pval = input$ue_pval_thresh, adjpval = input$ue_pval_thresh)
+
     return(temp)
     })
   #------ Visualization Object ------#
@@ -510,7 +353,6 @@ shinyServer(function(session, input, output){
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
     display_table <- isolate(global_results())
-    #test_display_name <- stringr::str_split(global_results()$Test.performed, pattern = "[(]")
     display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
     # 
     brks <- c(0.01, 0.01001)
@@ -567,31 +409,7 @@ shinyServer(function(session, input, output){
       write.table(display_table, file, row.names = FALSE)
     }
   )
-  
-  # Check that the parameters have the values chosen by the user -- this will be removed once I know things are working properly -- NOTHING IS BEING DISPLAYED AFTER I CLICK THE BUTTON...NOT SURE WHY
-  # output$param_check <- renderUI({
-  #   req(test_type()) 
-  #   req(general_select())
-  #   req(subset_by())
-  #   req(subset_select())
-  #   req(enrich_param())
-  #   req(p_value())
-  #   req(p_type())
-  #   
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('test_type: ', test_type(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('general_select: ', general_select(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('subset_by: ', subset_by(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('subset_select: ', subset_select(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('enrich: ', enrich_param(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('p_value: ', p_value(),'</h4>', sep="", collapse="")))
-  #   HTML(paste('<h4 style= "color:#cc3d16">', c('p_type: ', p_type(),'</h4>', sep="", collapse="")))
-  #   
-  # })
-  # 
-  
-  
-  
-  
+
   ####### Visualize Tab #######
   output$vizUI <- renderUI({
     #-------- Classification Charts --------#
@@ -746,18 +564,6 @@ shinyServer(function(session, input, output){
           )
         }
       }
-      #----- make these charts plotly style ---------#
-      
-      #  pp1 <- plot_ly(p1, labels = ~tag, values = ~Percentage, type = 'pie', 
-      #          textposition = 'inside',
-      #          textinfo = 'label+percent')
-      #  pp2 <- plot_ly(p2, labels = ~tag, values = ~Percentage, type = 'pie', 
-      #                 textposition = 'inside',
-      #                 textinfo = 'label+percent')
-      #  pp3 <- plot_ly(p3, labels = ~tag, values = ~Percentage, type = 'pie', 
-      #          textposition = 'inside',
-      #          textinfo = 'label+percent')
-      # subplot(pp1,pp2,pp3)
     }
     else if (input$chooseplots == 2) {
       # chains
@@ -956,39 +762,6 @@ shinyServer(function(session, input, output){
     
   })
   
-  # the_network <- reactive({
-  #   if (input$graph_pval_filter) {
-  #     req(input$graph_pval_type)
-  #     if (input$graph_pval_type == "Unadjusted p-value (default)"){
-  #       lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-  #                                                                           lipid.miner(universeMined()$intact$Lipid, output.list = T),
-  #                                                                           test.type = "EASE", general.select = c(T,T,T,T,T),
-  #                                                                           subset.select = c(T,T,T),
-  #                                                                           enrich = F,subset.by = "category"),
-  #                           pval = as.numeric(input$graph_pval))
-  #     } else if (input$graph_pval_type == "Adjusted p-value"){
-  #       lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-  #                                                                           lipid.miner(universeMined()$intact$Lipid, output.list = T),
-  #                                                                           test.type = "EASE", general.select = c(T,T,T,T,T),
-  #                                                                           subset.select = c(T,T,T),
-  #                                                                           enrich = F,subset.by = "category"),
-  #                           adjpval = as.numeric(input$graph_pval))
-  #     }
-  #   } else {
-  #     lipid_network_maker(queryMined()$intact$Lipid, rodin::run_the_tests(lipid.miner(queryMined()$intact$Lipid, output.list = T),
-  #                                                                         lipid.miner(universeMined()$intact$Lipid, output.list = T),
-  #                                                                         test.type = "EASE", general.select = c(T,T,T,T,T),
-  #                                                                         subset.select = c(T,T,T),
-  #                                                                         enrich = F,subset.by = "category"))
-  #   }
-  #   
-  #   colnames(network.nodes_attributes)<-c("label","title","color.background")
-  #   network.nodes_attributes2<-cbind(id=paste0("s",1:nrow(network.nodes_attributes)),network.nodes_attributes,shape=c("dot", "diamond")[as.numeric(network.nodes_attributes$title)],size=c(5, 50)[as.numeric(network.nodes_attributes$title)],borderWidth=0)
-  #   network.nodes_attributes2$title<- network.nodes_attributes2$label
-  #   network.edges_attributes2<-data.frame(from=network.nodes_attributes2$id[match(network.edges_attributes$Lipid.name,network.nodes_attributes2$label)],to=network.nodes_attributes2$id[match(network.edges_attributes$Class,network.nodes_attributes2$label)],color=network.edges_attributes$Color,width=1)
-  #   return(visNetwork(network.nodes_attributes2, network.edges_attributes2, width = "100%", height = "1700px") %>% visOptions(highlightNearest = TRUE, selectedBy = "type.label",manipulation=T))
-  # })
-  
   #------- Network Object ------#
   global_results_network <- reactive({
     req(unfiltered_results())
@@ -1042,7 +815,8 @@ shinyServer(function(session, input, output){
     }
 
   })
-  
+
+  #------ Make graph available for download -----#  
   output$NetworkNodes.txt <- downloadHandler(
     filename = function() {
       paste("Network_nodes", ".txt", sep = "")
