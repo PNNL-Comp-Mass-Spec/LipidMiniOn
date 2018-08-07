@@ -89,21 +89,21 @@ tagList(
                             ),
                             tabPanel(title = "Examples",
                                      br(),
-                                     tags$p("Download example files for analysis"),
+                                     tags$h4(tags$b("Download example files for analysis")),
                                      br(),
                                      fluidRow(
-                                       column(width = 6, tags$p("Example 1 Query"),
-                                              downloadButton("downloadExample1.1", "Download Query")),
-                                       column(width = 6,tags$p("Example 1 Universe"),
-                                              downloadButton("downloadExample1.2", "Download Universe"))
+                                       column(width = 6, tags$p("Query - Human Lung Endothelial Cells"),
+                                              downloadButton("Query_Human_Lung_Endothelial_Cells.txt", "Download Query")),
+                                       column(width = 6,tags$p("Universe - Human Lung Endothelial Cells"),
+                                              downloadButton("Universe_Human_Lung_Endothelial_Cells.txt", "Download Universe"))
                                      ),
                                      
                                      br(),
                                      fluidRow(
-                                       column(width = 6, tags$p("Example 2 Query"),
-                                              downloadButton("downloadExample2.1", "Download Query")),
-                                       column(width = 6,tags$p("Example 2 Universe"),
-                                              downloadButton("downloadExample2.2", "Download Universe"))
+                                       column(width = 6, tags$p("Query - Soil Surface"),
+                                              downloadButton("Query_Soil_Surface.txt", "Download Query")),
+                                       column(width = 6,tags$p("Universe - Soil Surface"),
+                                              downloadButton("Universe_Soil_Surface.txt", "Download Universe"))
                                      )
                                      
                                      )

@@ -16,6 +16,7 @@ library(DT)
 library(ggplot2)
 library(plotly)
 library(gridExtra)
+library(htmlwidgets)
 source("./run_the_tests.R")
 createCatPieCharts <- function(pie_data1, pie_data2, left_title, right_title){
   p1 <- ggplotly(intact.cat.pie(pie_data1)) %>% plotly_data()
@@ -173,6 +174,46 @@ shinyServer(function(session, input, output){
   
   #---------- Example Data Download --------#
   
+  output$Query_Human_Lung_Endothelial_Cells.txt <- downloadHandler(
+    filename = function() {
+      paste("Query_Human_Lung_Endothelial_Cells", ".txt", sep = "")
+    },
+    content = function(file) {
+      query_human_lung <- read.table("20M_END_signif.csv", header = T)
+      write.table(query_human_lung, file, row.names = FALSE, sep = "\t")
+    }
+  )
+  
+  output$Universe_Human_Lung_Endothelial_Cells.txt <- downloadHandler(
+    filename = function() {
+      paste("Universe_Human_Lung_Endothelial_Cells", ".txt", sep = "")
+    },
+    content = function(file) {
+      universe_human_lung <- read.table("LungMap_universe.csv", header = T)
+      write.table(universe_human_lung, file, row.names = FALSE, sep = "\t")
+    }
+  )
+  
+  output$Query_Soil_Surface.txt <- downloadHandler(
+    filename = function() {
+      paste("Query_Soil_Surface", ".txt", sep = "")
+    },
+    content = function(file) {
+      query_soil_surface <- read.table("Soil_surface_signif.csv", header = T)
+      write.table(query_soil_surface, file, row.names = FALSE, sep = "\t")
+    }
+  )
+  
+  output$Universe_Soil_Surface.txt <- downloadHandler(
+    filename = function() {
+      paste("Universe_Soil_Surface", ".txt", sep = "")
+    },
+    content = function(file) {
+      universe_soil_surface <- read.table("Soil_universe.csv", header = T)
+      write.table(universe_soil_surface, file, row.names = FALSE, sep = "\t")
+    }
+  )
+  
   # universeData <- reactive({
   #   if (is.null(input$universe)) {
   #     return(NULL)
@@ -187,60 +228,9 @@ shinyServer(function(session, input, output){
   #### Main Panel ####
   
   options(DT.options = list(pageLength = 15))
-  
-  
-  ## Display Table and populate with number of lipids in Original (un-cleaned) datasets ##
-  # Depends on: file upload (to get the uploadResults numbers) and button click (to get the cleanResults numbers)
-  
-  # # Set default results: NA before data is uploaded
-  # uploadResultsQuery <- NA
-  # uploadResultsUniverse <- NA
-  # 
-  # # Set default results: NA before cleaning occurs
-  # cleanResultsQuery <- NA
-  # cleanResultsUniverse <- NA
-  # 
-  #   # query upload length
-  #   uploadResultsquery <- reactive({
-  #     # Make sure requirements are met
-  #     req(queryData())
-  # 
-  #     nrow(queryData())
-  #   })
-  # 
-  #   # Universe upload length
-  #   uploadResultsUniverse <- reactive({
-  #     # Make sure requirements are met
-  #     req(universeData())
-  # 
-  #     nrow(universeData())
-  #   })
-  # 
-  #   # query cleaned length
-  #   cleanResultsQuery <- reactive({
-  #     # Make sure requirements are met
-  #     req(queryDataClean())
-  # 
-  #     length(queryDataClean())
-  #   })
-  # 
-  #   # Universe cleaned length
-  #   cleanResultsUniverse <- reactive({
-  #     # Make sure requirements are met
-  #     req(universeDataClean())
-  # 
-  #     length(universeDataClean())
-  #   })
-  
+
   ## Display table with number lipids in cleaned datasets ## 1. HAVING TROUBLE WITH THE REACTIVITY HERE - I WANT TO POPULATE THE TABLE WITH THE NUMBERS FROM THE FILE UPLOADS AS SOON AS THE FILE IS UPLOADED, AND THEN POPULATE THE REST OF THE TABLE WITH THE NUMBERS FROM THE CLEANED DATA AFTER THE BUTTON HAS BEEN CLICKED
   output$summary_data <- renderTable({
-    #input$query
-    #input$universe
-     # req(universeDataClean())
-     # req(queryDataClean())
-     #req(cleanResultsUniverse())
-     #req(cleanResultsQuery())
-    
     # If query data uploaded
     if(!is.null(queryData())){
       uploadResultsQ <- nrow(queryData())
@@ -464,44 +454,7 @@ shinyServer(function(session, input, output){
     }
     
   })
-  # # initialize the user input values? 
-  # 
-  # # Get user inputs #
-  test_type <- reactive({
-    req(input$dd_enrich_test)
-    input$dd_enrich_test
-  })
-  
-  general_select <- reactive({
-    req(input$cb_test_params)
-    input$cb_test_params
-  })
-  
-  subset_by <- reactive({
-    req(input$dd_subset_id)
-    input$dd_subset_id
-  })
-  
-  subset_select <- reactive({
-    req(input$cb_params_subclass)
-    input$cb_params_subclass
-  })
-  
-  enrich_param <- reactive({
-    req(input$cb_pval_filter)
-    input$cb_pval_filter
-  })
-  
-  p_type <- reactive({
-    req(input$dd_pval_type)
-    input$dd_pval_type
-  })
-  
-  
-  p_value <- reactive({
-    req(input$ue_pval_thresh)
-    input$ue_pval_thresh
-  })
+
   # 
   # End of get user inputs #
   
