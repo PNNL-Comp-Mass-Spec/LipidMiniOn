@@ -429,6 +429,8 @@ shinyServer(function(session, input, output){
       } else {
         p <- input$ue_pval_thresh
       }
+      # Construct a status message of the form
+      # Fisher output table (9 pvals < 0.05)
       return(paste(input$dd_enrich_test, " output table (",
             sum(global_results()$Pvalue < p),
             " pvals < ", p,
