@@ -353,8 +353,9 @@ shinyServer(function(session, input, output){
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
     display_table <- isolate(global_results())
-    display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
-    #
+    # display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
+    display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)gsub(x, pattern = "\\s*\\([^\\)]+\\)", replacement="" )))
+
     brks <- c(0.01, 0.01001)
     clrs <- c("bold","weight", "weight")
     p <- datatable(display_table,
