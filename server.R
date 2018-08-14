@@ -198,17 +198,6 @@ shinyServer(function(session, input, output){
       return(lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE))
     } else {return(NULL)}
   })
-
-  # universeMined <- eventReactive(input$check_click, {
-  #   validate(
-  #     need(length(universeDataClean()) > 0, 
-  #          'There are zero lipids in the cleaned universe data')
-  #   )
-  #   
-  #   lipid.miner(universeDataClean(), name="Query", TGcollapse.rm = TRUE, output.list = TRUE)
-  # })
-  
-  
   
   ## Display success message if everything is loaded correctly ##
   output$process_success <- renderUI({
@@ -349,30 +338,33 @@ shinyServer(function(session, input, output){
   
 
   
-  
+  #output$global_results_table <- renderTable(global_results())
   output$global_results_table <- DT::renderDataTable({
     req(global_results())
     display_table <- isolate(global_results())
+    browser()
     display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
-    # 
-    brks <- c(0.01, 0.01001)
-    clrs <- c("bold","weight", "weight")
-    p <- datatable(display_table,
-                   filter = 'top',  
-                   options = list(pageLength = 100, autoWidth = TRUE),
-                   rownames = FALSE) %>%
-      formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
-                  fontWeight = styleInterval(brks, clrs)) %>%
-      formatStyle("BHadjustPvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
-                  fontWeight = styleInterval(brks, clrs)) %>%
-      formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
-      formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
-      formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
-                  fontWeight = styleInterval(0, c("weight", "bold")))
-    #backgroundColor = styleInterval(brks, clrs))
     
+    #
+   brks <- c(0.01, 0.01001)
+   clrs <- c("bold","weight", "weight")
+    p <- datatable(display_table)
+    # p <- datatable(display_table,
+    #                filter = 'top',
+    #                options = list(pageLength = 100, autoWidth = TRUE),
+    #                rownames = FALSE) %>%
+    #   formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+    #               fontWeight = styleInterval(brks, clrs)) %>%
+    #   formatStyle("BHadjustPvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+    #               fontWeight = styleInterval(brks, clrs)) %>%
+    #   formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
+    #   formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
+    #   formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
+    #               fontWeight = styleInterval(0, c("weight", "bold")))
+
+
     return(p)
-    
+
   })
   
   output$downloadGlobalResultsUI <- renderUI({

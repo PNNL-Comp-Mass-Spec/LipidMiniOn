@@ -213,7 +213,7 @@ tagList(
                           hr(),
                           
                           uiOutput("param_check"),
-                          
+                          #tableOutput("global_results_table")
                           DT::dataTableOutput("global_results_table")
                           
                         )
@@ -276,12 +276,11 @@ tagList(
                       h4("Links"),
                       p(HTML("<a href='https://scholar.google.com/schhp?hl=en'>Cite Us</a><br/><br/><a href='https://github.com/'>Github</a><br></br>")),
                       h4("About Us"),
-                      p("Lipidomics is...")
-                      
+                      includeMarkdown("About.md")
                       ),
              tabPanel("Help",
                       h4("Contact Us"),
-                      img(src="logoteal.pdf"),
+                      img(src = "logoteal.png", height = 340, width = 480),
                       br(),
                       h4(HTML("<a href='https://youtube.com'>YouTube</a>"))
                       )
