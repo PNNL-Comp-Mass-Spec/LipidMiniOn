@@ -100,9 +100,9 @@ tagList(
                                      
                                      br(),
                                      fluidRow(
-                                       column(width = 6, tags$p("Query - Soil Surface"),
+                                       column(width = 6, tags$p("Query - Peat Soil"),
                                               downloadButton("Query_Soil_Surface.txt", "Download Query")),
-                                       column(width = 6,tags$p("Universe - Soil Surface"),
+                                       column(width = 6,tags$p("Universe - Peat Soil"),
                                               downloadButton("Universe_Soil_Surface.txt", "Download Universe"))
                                      )
                                      
