@@ -394,8 +394,8 @@ shinyServer(function(session, input, output){
     content = function(file) {
       display_table <- isolate(global_results())
       #test_display_name <- stringr::str_split(global_results()$Test.performed, pattern = "[(]")
-      display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
-
+      display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)gsub(x, pattern = "\\s*\\([^\\)]+\\)", replacement="" )))
+      
       write.table(display_table, file, row.names = FALSE)
     }
   )
