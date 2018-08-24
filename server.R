@@ -369,7 +369,7 @@ shinyServer(function(session, input, output){
     if (is.null(global_results())) {
       return(NULL)
     } else {
-      downloadButton("downloadGlobalResults", "Download Results Table")
+      downloadButton("downloadGlobalResults.txt", "Download Results Table")
     }
   })
 
@@ -387,7 +387,7 @@ shinyServer(function(session, input, output){
                  ")", sep = ""))
   })
 
-  output$downloadGlobalResults <- downloadHandler(
+  output$downloadGlobalResults.txt <- downloadHandler(
     filename = function() {
       paste(table_name(), ".txt", sep = "")
     },
