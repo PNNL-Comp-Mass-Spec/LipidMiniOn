@@ -184,7 +184,9 @@ shinyServer(function(session, input, output){
     }
   })
 
-
+output$rankplot <- renderPlot({
+  plot_ranking(queryDataClean())
+})
 #----- Run lipid.miner on the 2 datasets ------#
   mine_the_data <- reactiveValues(go = FALSE)
   observeEvent(input$check_click, {

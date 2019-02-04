@@ -133,7 +133,7 @@ tagList(
 
                           # Summary table giving number lipids # 1. HAVING TROUBLE WITH THE REACTIVITY HERE (SEE THE SERVER FILE FOR A NOTE ON WHAT I'M TRYING TO DO), ALSO GETTING ERROR ABOUT SUBSETTING...
                           
-                            conditionalPanel(condition = 'input.check_click == 0 & input.check_click1 == 0',{
+                            conditionalPanel(condition = 'input.check_click == 0 & input.check_click1 == 0 & input.check_click2 == 0',{
                               img(src="displaylogo.png", height = "60%", width = "60%")
                             }),
                           conditionalPanel(condition = 'input.check_click > 0 | input.check_click1 > 0',{
@@ -144,6 +144,12 @@ tagList(
                           width = 6,
                             tableOutput('summary_data')
                         )
+                        }),
+                        conditionalPanel(condition = 'input.check_click2 > 0',{
+                          wellPanel(
+                            width = 8,
+                            plotOutput("rankplot")
+                          )
                         }),
                           # Download the cleaned data (.txt files) # 2. THESE BUTTONS SHOULD ONLY APPEAR OR BECOME ACTIVE ONCE THE DATA HAS BEEN PROCESSED SUCCESSFULLY VIA THE "CHECK DATA" BUTTON
                           fluidRow(
