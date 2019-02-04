@@ -11,7 +11,7 @@
 #options(shiny.maxRequestSize=30*1024^2, ch.dir = TRUE)
 library(shiny)
 library(visNetwork)
-library(rodin)
+library(Rodin)
 library(DT)
 library(ggplot2)
 library(plotly)
@@ -344,20 +344,19 @@ shinyServer(function(session, input, output){
     display_table <- isolate(global_results())
     # display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)stringr::str_split(x, pattern = "[(]")[[1]][1]))
     display_table$Test.performed <- unlist(lapply(global_results()$Test.performed, function(x)gsub(x, pattern = "\\s*\\([^\\)]+\\)", replacement="" )))
-
     brks <- c(0.01, 0.01001)
     clrs <- c("bold","weight", "weight")
     p <- datatable(display_table,
                    filter = 'top',
                    options = list(pageLength = 100, autoWidth = TRUE),
                    rownames = FALSE) %>%
-      formatStyle("Pvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+      formatStyle("p-value", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
                   fontWeight = styleInterval(brks, clrs)) %>%
-      formatStyle("BHadjustPvalue", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
+      formatStyle("FDR.q-value", color = JS("value <= 0.05 ? 'red' : value > 0.05 ? 'black' : 'blue'"),
                   fontWeight = styleInterval(brks, clrs)) %>%
-      formatRound(columns=c('%.query', '%.universe','fold.change'), digits = 2) %>%
-      formatRound(columns=c('Pvalue', 'BHadjustPvalue','fold.change'), digits = 4) %>%
-      formatStyle("fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
+      formatRound(columns=c('%.query', '%.universe','Fold.change'), digits = 2) %>%
+      formatRound(columns=c('p-value', 'FDR.q-value','Fold.change'), digits = 4) %>%
+      formatStyle("Fold.change", color = JS("value <= 0 ? 'black' : value > 0 ? 'green' : 'green'"),
                   fontWeight = styleInterval(0, c("weight", "bold")))
     #backgroundColor = styleInterval(brks, clrs))
 
