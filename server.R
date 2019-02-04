@@ -31,11 +31,18 @@ shinyServer(function(session, input, output){
     if(!is.null(input$query$datapath)){
       filename <- input$query$datapath
       return(read.csv(filename, stringsAsFactors = FALSE))
-    } else if (input$query_text != "")
-    req(input$query_text)
-    input$check_click1
-    temp <- strsplit(isolate(input$query_text), split = " ")[[1]]
-    return(data.frame(ID = temp, row.names = NULL))
+    } else if (input$query_text != ""){
+      req(input$query_text)
+      input$check_click1
+      temp <- strsplit(isolate(input$query_text), split = " ")[[1]]
+      return(data.frame(ID = temp, row.names = NULL))
+    } else if (!is.null(input$rank_table$datapath)){
+      filename <- input$rank_table$datapath
+      return(read.csv(filename, stringsAsFactors = FALSE))
+    }
+    else (return(NULL))
+
+    
   })
 
   # Get data from Universe File #
@@ -98,6 +105,8 @@ shinyServer(function(session, input, output){
   #---------- Depending on the type of data upload (text or csv) display a success message if successful
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   output$CleaningDescription1 = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
+  output$CleaningDescription2 = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
+  
   #### Main Panel ####
 
   options(DT.options = list(pageLength = 15))
@@ -145,22 +154,29 @@ shinyServer(function(session, input, output){
 
 #----- Clean the uploaded data --------#
   queryDataClean <- reactive({
-    validate(
-      need(nrow(queryData()) > 0,
-           'Please upload Query file with > 1 lipid')
-    )
+    if(is.null(input$rank_table$datapath)){
+      validate(
+        need(nrow(queryData()) > 0,
+             'Please upload Query file with > 1 lipid')
+      )
+    }
     if (input$check_click > 0 | input$check_click1 > 0){
       return(clean.lipid.list(X = queryData()))
-    } else {
+    } else if (input$check_click2 > 0) {
+      return(clean.rankingTable(queryData()))
+    } else{
       return(NULL)
     }
   })
 
   universeDataClean <- reactive({
-    validate(
-      need(nrow(universeData()) > 0,
-           'Please upload Universe file with > 1 lipid')
-    )
+    if(is.null(input$rank_table$datapath)){
+      validate(
+        need(nrow(universeData()) > 0 ,
+             'Please upload Universe file with > 1 lipid')
+      )
+    }
+
     if (input$check_click > 0 | input$check_click1 > 0){
       return(clean.lipid.list(X = universeData()))
     } else {

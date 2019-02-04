@@ -87,6 +87,24 @@ tagList(
                                      ## Process data button (clean it) ##
                                      actionButton('check_click1', 'Check Data')
                             ),
+                            tabPanel(title = "Rank Upload",
+                                     br(),
+                                     column(width = 12,
+                                            ## Load Universe file ##
+                                            fileInput("rank_table", tags$b("Upload 'Ranking' Table (.csv)"),
+                                                      multiple = TRUE,
+                                                      accept = c("text/csv",
+                                                                 "text/comma-separated-values,text/plain",
+                                                                 ".csv"))
+                                            #textInput("universe", "Upload 'Universe' Lipid Names")
+                                     ),
+                                     ## Description of what the "Check Data" button does #
+                                     textOutput("CleaningDescription2"),
+                                     br(),
+                                     
+                                     ## Process data button (clean it) ##
+                                     actionButton('check_click2', 'Check Data')
+                            ),
                             tabPanel(title = "Examples",
                                      br(),
                                      tags$h4(tags$b("Download example files for analysis")),
