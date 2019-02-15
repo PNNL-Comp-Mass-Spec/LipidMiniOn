@@ -17,7 +17,6 @@ library(ggplot2)
 library(plotly)
 library(gridExtra)
 library(htmlwidgets)
-#source("./run_the_tests.R")
 source("./pie_chart_functions.R")
 
 shinyServer(function(session, input, output){
@@ -53,7 +52,7 @@ shinyServer(function(session, input, output){
   # Get data from Universe File #
   universeData <- reactive({
     if(!is.null(input$universe$datapath)){
-      req(input$universe$datapath)
+      #req(input$universe$datapath)
       filename <- input$universe$datapath
       return(read.csv(filename, stringsAsFactors = FALSE) )
     } 
@@ -125,13 +124,15 @@ shinyServer(function(session, input, output){
     if(!f$switchAnalysis){
       return(summary_data_qu())
     }
-    if (input$check_click == 0 &input$check_click2 == 0){
+    if (input$check_click == 0 & input$check_click2 == 0){
       return(NULL)
     }
   }, rownames = TRUE, align = 'c')
   
   summary_data_qu <- reactive({
     # If query data uploaded
+    req(queryData())
+    req(universeData())
     if(!is.null(queryData())){
       uploadResultsQ <- nrow(queryData())
     } else {
@@ -232,6 +233,7 @@ shinyServer(function(session, input, output){
     # }
 
     if (input$check_click > 0 | !f$switchAnalysis){#| input$check_click1 > 0){
+      #req(universeData())
       validate(
         need(nrow(universeData()) > 0 ,
              'Please upload Universe file with > 1 lipid')
@@ -309,10 +311,11 @@ observeEvent(input$check_click, {
   ## Display success message if everything is loaded correctly ##
   output$process_success <- renderUI({
     if(!f$switchAnalysis){
-      # req(universeDataClean())
-      # req(queryDataClean())
-      # req(universeMined())
-      # req(queryMined())
+      req(universeData())
+       req(universeDataClean())
+       req(queryDataClean())
+       req(universeMined())
+       req(queryMined())
       test1 <- universeDataClean()
       test2 <- queryDataClean()
       
@@ -388,21 +391,6 @@ observeEvent(input$check_click, {
     }
   })
 
-  # output$RankTableClean.txt <- downloadHandler(
-  #   filename = function() {
-  #   },
-  #   content = function(file) {
-  #     
-  #   }
-  # )
-  # 
-  # output$downloadRankUI <- renderUI({
-  #   if (is.null(universeDataClean())) {
-  #     return(NULL)
-  #   } else {
-  #     downloadButton(outputId = "UniverseClean.txt", "Download Passed Universe Data")
-  #   }
-  # })
   ####### Enrichment Analysis Tab #######
   # Conditional on KS input or Query/Universe Input
   output$tempplaceholder = renderText({
