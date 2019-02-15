@@ -1297,23 +1297,30 @@ observeEvent(input$check_click, {
       } else if ( input$graph_pval_type == "Unadjusted p-value (default)"){
         temp <- subset(temp, `p-value` <= input$graph_pval)
       }
-      temp <- subset(temp, fold.change > 1)
+      if(!f$switchAnalysis){
+        temp <- subset(temp, Fold.change > 1)
+      }
     }
     return(temp)
   })
 
   network_components <- reactive({
+    if(f$switchAnalysis){
+      data_obj <- rankingMined()
+    } else {
+      data_obj <- queryMined()
+    }
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
       if (input$graph_pval_type == "Unadjusted p-value (default)"){
-        lipid_network_maker(queryMined()$intact$Lipid, global_results_network(),
+        lipid_network_maker(data_obj$intact$Lipid, global_results_network(),
                             p = as.numeric(input$graph_pval))
-      } else if (input$graph_pval_type == "Adjusted p-value"){
-        lipid_network_maker(queryMined()$intact$Lipid, global_results_network(),
-                            adjpval = as.numeric(input$graph_pval))
+      } else if (input$graph_pval_type == "FDR q-value"){
+        lipid_network_maker(data_obj$intact$Lipid, global_results_network(),
+                            q = as.numeric(input$graph_pval))
       }
     } else {
-      lipid_network_maker(queryMined()$intact$Lipid, global_results_network())
+      lipid_network_maker(data_obj$intact$Lipid, global_results_network())
     }
 
     colnames(network.nodes_attributes) <- c("label","title","color.background")
@@ -1355,7 +1362,7 @@ observeEvent(input$check_click, {
   )
 
   output$downloadNetworkNodesUI <- renderUI({
-    if (is.null(queryMined())) {
+    if (is.null(network_components())) {
       return(NULL)
     } else {
       downloadButton(outputId = "NetworkNodes.txt", "Download Network Nodes")
@@ -1373,7 +1380,7 @@ observeEvent(input$check_click, {
   )
 
   output$downloadNetworkEdgesUI <- renderUI({
-    if (is.null(queryMined())) {
+    if (is.null( network_components())) {
       return(NULL)
     } else {
       downloadButton(outputId = "NetworkEdges.txt", "Download Network Edges")
@@ -1391,7 +1398,7 @@ observeEvent(input$check_click, {
   )
 
   output$downloadNetworkEdgeAttributesUI <- renderUI({
-    if (is.null(queryMined())) {
+    if (is.null(network_components())) {
       return(NULL)
     } else {
       downloadButton(outputId = "NetworkEdgeAttributes.txt", "Download Network Edge Attributes")
