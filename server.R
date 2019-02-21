@@ -107,7 +107,16 @@ shinyServer(function(session, input, output){
     }
   )
 
-  #---------- Depending on the type of data upload (text or csv) display a success message if successful
+  output$Rank_Table_Endothelial_vs_Whole_Lysate.csv <- downloadHandler(
+    filename = function() {
+      paste("Rank_Table_Endothelial_vs_Whole_Lysate", ".csv", sep = "")
+    },
+    content = function(file) {
+      universe_soil_surface <- read.csv("Rank_Table_Endothelial_vs_Whole_Lysate.csv", header = T, check.names = FALSE)
+      write.table(universe_soil_surface, file, row.names = FALSE, sep = ",")
+    }
+  )
+    #---------- Depending on the type of data upload (text or csv) display a success message if successful
   output$CleaningDescription = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   output$CleaningDescription1 = renderText({"Verify annotations match between query and universe by clicking 'Check Data'"})
   output$CleaningDescription2 = renderText({"Verify annotations match by clicking 'Check Data'"})
@@ -458,13 +467,30 @@ observeEvent(input$check_click, {
                       )
           ),
           
-          
-          ### What to look at in the subset - checkbox group ###
-          checkboxGroupInput("cb_params_subclass", tags$b("Parameters to test within each subset"),
-                             choices = c("Total number of chain carbon" = "total_carbon",
-                                         "Total number of double bonds" = "total_insaturation",
-                                         "Individual chains (e.g. fatty acids)" = "specific_chains")
-          ),
+          conditionalPanel(condition = 'input.dd_subset_id == "None (default)"',{
+            ### What to look at in the subset - checkbox group ###
+            checkboxGroupInput("cb_params_subclass", tags$b("Parameters to test within each subset"),
+                               choices = c("Total number of chain carbon" = "total_carbon",
+                                           "Total number of double bonds" = "total_insaturation",
+                                           "Individual chains (e.g. fatty acids)" = "specific_chains")
+            )
+          }),
+          conditionalPanel(condition = 'input.dd_subset_id != "None (default)"',{
+            ### What to look at in the subset - checkbox group ###
+            checkboxGroupInput("cb_params_subclass", tags$b("Parameters to test within each subset"),
+                               choices = c("Total number of chain carbon" = "total_carbon",
+                                           "Total number of double bonds" = "total_insaturation",
+                                           "Individual chains (e.g. fatty acids)" = "specific_chains"),
+                               selected = c("total_carbon", "total_insaturation", "specific_chains")
+            )
+          }),
+          # ### What to look at in the subset - checkbox group ###
+          # checkboxGroupInput("cb_params_subclass", tags$b("Parameters to test within each subset"),
+          #                    choices = c("Total number of chain carbon" = "total_carbon",
+          #                                "Total number of double bonds" = "total_insaturation",
+          #                                "Individual chains (e.g. fatty acids)" = "specific_chains"),
+          #                    selected = c("total_carbon", "total_insaturation", "specific_chains")
+          # ),
           
           
           hr(),
@@ -504,7 +530,7 @@ observeEvent(input$check_click, {
     if (input$cb_pval_filter) {
       tagList(
         selectInput("dd_pval_type", "",
-                    choices = c("Unadjusted p-value (default)",
+                    choices = c("P-value (default)",
                                 "FDR q-value"
                     )
         ),
@@ -566,7 +592,7 @@ observeEvent(input$check_click, {
       #figure out which filter to use
       if (input$dd_pval_type == "FDR q-value"){
         temp <- subset(temp, `FDR.q-value` <= input$ue_pval_thresh)
-      } else if ( input$dd_pval_type == "Unadjusted p-value (default)"){
+      } else if ( input$dd_pval_type == "P-value (default)"){
         temp <- subset(temp, `p-value` <= input$ue_pval_thresh)
       }
       if(!f$switchAnalysis){
@@ -1260,10 +1286,10 @@ observeEvent(input$check_click, {
     if (input$graph_pval_filter) {
       tagList(
         selectInput(inputId = "graph_pval_type", "",
-                    choices = c("Unadjusted p-value (default)",
+                    choices = c("P-value (default)",
                                 "FDR q-value"
                     ),
-                    selected = "Unadjusted p-value (default)"
+                    selected = "P-value (default)"
         ),
         ### Actual p-value to use - user entry ### 4. THIS SHOULD ONLY BE VISIBLE OR BECOME ACTIVE IF THE P-VALUE FILTER CHECKBOX IS CHECKED
         textInput(inputId = "graph_pval", label = tags$b("Select a value"), value = pv)
@@ -1282,7 +1308,7 @@ observeEvent(input$check_click, {
       #figure out which filter to use
       if (input$graph_pval_type == "FDR q-value"){
         temp <- subset(temp, `FDR.q-value` <= input$graph_pval)
-      } else if ( input$graph_pval_type == "Unadjusted p-value (default)"){
+      } else if ( input$graph_pval_type == "P-value (default)"){
         temp <- subset(temp, `p-value` <= input$graph_pval)
       }
       if(!f$switchAnalysis){
@@ -1300,7 +1326,7 @@ observeEvent(input$check_click, {
     }
     if (input$graph_pval_filter) {
       req(input$graph_pval_type)
-      if (input$graph_pval_type == "Unadjusted p-value (default)"){
+      if (input$graph_pval_type == "P-value (default)"){
         lipid_network_maker(data_obj$intact$Lipid, global_results_network(),
                             p = as.numeric(input$graph_pval))
       } else if (input$graph_pval_type == "FDR q-value"){

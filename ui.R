@@ -124,6 +124,12 @@ tagList(
                                               downloadButton("Query_Soil_Surface.txt", "Download Query")),
                                        column(width = 6,tags$p("Universe - Peat Soil"),
                                               downloadButton("Universe_Soil_Surface.txt", "Download Universe"))
+                                     ),
+                                     br(),
+                                     
+                                     fluidRow(
+                                       column(width = 10, tags$p("Rank Table - Endothelial"),
+                                              downloadButton("Rank_Table_Endothelial_vs_Whole_Lysate.csv", "Download Table"),offset = 3)
                                      )
                                      
                                      )
