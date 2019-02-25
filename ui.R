@@ -378,16 +378,28 @@ tagList(
                       )
                       ),
              tabPanel("About Mini-On",
-                      h4("Links"),
-                      p(HTML("<a href='https://scholar.google.com/schhp?hl=en'>Cite Us</a><br/><br/><a href='https://github.com/'>Github</a><br></br>")),
-                      h4("About Us"),
+                      h4(tags$b("Links")),
+                      fluidRow(
+                        column(width = 2,
+                               actionButton(inputId='ab1', label="Github", 
+                                            icon = icon("github"),
+                                            onclick ="location.href='https://github.com/PNNL-Comp-Mass-Spec/Rodin';")
+                        ),
+                        column(width = 3,
+                               actionButton(inputId='ab1', label="Cite Us", 
+                                            icon = icon("quote-right"),
+                                            onclick ="location.href='https://scholar.google.com/schhp?hl=en';")
+                        )
+                      ),
+                      br(),
+                      h4(tags$b("About Us")),
                       includeMarkdown("About.md")
                       ),
              tabPanel("Help",
-                      h4("Contact Us"),
-                      img(src = "logoteal.png", height = 340, width = 480),
-                      br(),
-                      h4(HTML("<a href='https://youtube.com'>YouTube</a>"))
+
+                      tags$iframe(style="height:800px; width:100%; scrolling=yes", 
+                                  src="Lipid_Mini-On_user_manual_feb_2019.pdf")
+
                       )
   )
 )
