@@ -411,7 +411,7 @@ observeEvent(input$check_click, {
       if (is.null(input$ue_pval_thresh)) {
         p <- 0.05
       } else {
-        p <- input$ue_pval_thresh
+        p <- as.numeric(input$ue_pval_thresh)
       }
       # Construct a status message of the form
       # Fisher output table (9 pvals < 0.05)
@@ -587,13 +587,13 @@ observeEvent(input$check_click, {
   #------ Visualization Object ------#
   global_results <- reactive({
     req(unfiltered_results())
-    temp <- unfiltered_results()
+    temp <- isolate(unfiltered_results())
     if (input$cb_pval_filter) {
       #figure out which filter to use
       if (input$dd_pval_type == "FDR q-value"){
-        temp <- subset(temp, `FDR.q-value` <= input$ue_pval_thresh)
+        temp <- subset(temp, `FDR.q-value` <= as.numeric(input$ue_pval_thresh))
       } else if ( input$dd_pval_type == "P-value (default)"){
-        temp <- subset(temp, `p-value` <= input$ue_pval_thresh)
+        temp <- subset(temp, `p-value` <= as.numeric(input$ue_pval_thresh))
       }
       if(!f$switchAnalysis){
         temp <- subset(temp, Fold.change > 1)
@@ -657,7 +657,7 @@ observeEvent(input$check_click, {
     if (is.null(input$ue_pval_thresh)) {
       p <- 0.05
     } else {
-      p <- input$ue_pval_thresh
+      p <- as.numeric(input$ue_pval_thresh)
     }
     return(paste(input$dd_enrich_test, " output table (",
                  sum(global_results()$`p-value` < p),
