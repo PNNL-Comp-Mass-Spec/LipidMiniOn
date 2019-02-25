@@ -1346,7 +1346,7 @@ observeEvent(input$check_click, {
 
   output$graphplaceholder = renderText({
     if (input$precheck_click == 0) {
-      return("Please Process Data on the Enruchment Analysis tab to continue")
+      return("Please Process Data on the Enrichment Analysis tab to continue")
     } else {
       return(NULL)
     }

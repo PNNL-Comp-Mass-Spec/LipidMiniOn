@@ -12,4 +12,4 @@ Matthew Monroe is a staff scientist in the Integrative Omics group, developing a
 
 Malak Tfaily is an analytical scientist at University of Arizona who specializes in environmental organic matter characterization with a focus on soil systems and microbial metabolic cycles. 
 
-Charles Ansong is …
+Charles Ansong is senior scientist and group lead of the biostructure and function group in the Biological Sciences Division at PNNL, he works on multiomics analyses in particular in the biomedical field.
