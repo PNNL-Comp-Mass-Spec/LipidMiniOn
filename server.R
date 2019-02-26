@@ -1307,9 +1307,9 @@ observeEvent(input$check_click, {
     if (input$graph_pval_filter) {
       #figure out which filter to use
       if (input$graph_pval_type == "FDR q-value"){
-        temp <- subset(temp, `FDR.q-value` <= input$graph_pval)
+        temp <- subset(temp, `FDR.q-value` <= as.numeric(input$graph_pval))
       } else if ( input$graph_pval_type == "P-value (default)"){
-        temp <- subset(temp, `p-value` <= input$graph_pval)
+        temp <- subset(temp, `p-value` <= as.numeric(input$graph_pval))
       }
       if(!f$switchAnalysis){
         temp <- subset(temp, Fold.change > 1)
