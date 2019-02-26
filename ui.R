@@ -380,14 +380,13 @@ tagList(
              tabPanel("About Mini-On",
                       h4(tags$b("Links")),
                       fluidRow(
-                        column(width = 2,
-                               actionButton(inputId='ab1', label="Github", 
-                                            icon = icon("github"),
+                        column(width = 3,
+                               actionButton(inputId='ab1', 
+                                            label = "Github",
                                             onclick ="location.href='https://github.com/PNNL-Comp-Mass-Spec/Rodin';")
                         ),
                         column(width = 3,
                                actionButton(inputId='ab1', label="Cite Us", 
-                                            icon = icon("quote-right"),
                                             onclick ="location.href='https://scholar.google.com/schhp?hl=en';")
                         )
                       ),
