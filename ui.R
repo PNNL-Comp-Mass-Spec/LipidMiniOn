@@ -11,6 +11,7 @@ library(shiny)
 library(plotly)
 library(visNetwork)
 library(shinycssloaders)
+library(markdown)
 
 # Define UI for application that draws a histogram
 tagList(
